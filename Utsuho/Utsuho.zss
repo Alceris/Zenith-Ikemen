@@ -3,6 +3,10 @@ map(ActionLock) := $ActionLock;
 map(CanActionCancel) := 0;
 map(CanMotionCancel) := 0;
 
+[Function ComboFactors(Proration, LimitGain)]
+map(Proration) := $Proration;
+map(LimitGain) := $LimitGain;
+
 #===============================================================================
 # PreUpdate
 #===============================================================================
@@ -14,6 +18,46 @@ ignoreHitPause {
 assertSpecial{flag: RunFirst;}
 notHitBy{attr: SCA,AA,AP,AT; time: 1; slot: 0;}
 overrideClsn{group: size; index: 0; rect: 0, 0, 0, 0;}
+
+for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
+	let charID = player($i),ID;
+	if player($i),moveType = H {
+		if player($i),getHitVar(frame) {
+			if !player($i),getHitVar(guarded) {
+				let prevrate = 1.0;
+				let hashit = 0;
+				for h = 0; root,numHelper; 1 {
+					if root,helperIndex($h),moveHitVar(frame) && root,helperIndex($h),hasHit($charID) {
+						let origdamage = round(-root,helperIndex($h),hitDefVar(hitdamage)*root,helperIndex($h),attack/player($i),defence, 0);
+						let damage = round($origdamage*player($i),map(SokuComboRate)*lerp(0.7, 1, float(player($i),life)/player($i),lifeMax), 0);
+						let prevrate = player($i),map(SokuComboRate);
+						lifeAdd{value: $damage; kill: player($i),getHitVar(kill); absolute: 1; redirectid: $charID;}
+						getHitVarSet{damage: max(player($i),getHitVar(damage)+$origdamage, 0); redirectid: $charID;}
+						mapSet{map: "SokuComboLimit"; value: player($i),map(SokuComboLimit)+root,helperIndex($h),map(LimitGain); redirectid: $charID;}
+						if player($i),map(SokuComboLimit) >= 100 {
+							getHitVarSet{damage: 0; redirectid: $charID;}
+							break;
+						}
+						mapSet{map: "SokuComboRate"; value: player($i),map(SokuComboRate)*root,helperIndex($h),map(Proration); redirectid: $charID;}
+						displayToClipboard{text:"damageleft = %d"; params: player($i),getHitVar(damage);}
+					}
+				}
+				if player($i),hitFall {
+					getHitVarSet{fall.recovertime: (player($i),getHitVar(fall.recovertime)-player($i),getHitVar(HitShakeTime))*$prevrate + player($i),getHitVar(HitShakeTime); redirectid: $charID;}
+				}
+			}
+		}
+		if player($i),map(SokuComboLimit) >= 100 {
+			getHitVarSet{fall.recover: 0; redirectid: $charID;}
+			notHitBy{attr: SCA,AA,AP,AT; time: 1; slot: 7; redirectid: $charID;}
+		} else if player($i),hitFall && player($i),canRecover {
+			notHitBy{attr: SCA,AA,AP,AT; time: 1; slot: 7; redirectid: $charID;}
+		}
+	} else {
+		mapSet{map: "SokuComboLimit"; value: 0; redirectid: $charID;}
+		mapSet{map: "SokuComboRate"; value: 1; redirectid: $charID;}
+	}
+}
 
 for t = 0; root,numTarget-1; 1 {
 	let charID = root,target(-1, $t),ID;
@@ -438,6 +482,7 @@ if vel X > 0 {
 }
 
 if animElem = 2 {
+	call ComboFactors(0.9, 0);
 	map(ZenithNoClash) := 1;
 	playSnd{value: S2,0;}
 	hitDef{attr: S, NA;
@@ -463,7 +508,7 @@ if animElem = 2 {
 	air.hittime: 12;
 	air.fall: 1;
 	fall.recover: 1;
-	fall.recovertime: 45;
+	fall.recovertime: 55;
 	yaccel: 0.25;}
 
 } else if animElem = 3 {
@@ -491,6 +536,7 @@ if vel X > 0 {
 
 if animElem = 4 {
 	velSet{x: 4;}
+	call ComboFactors(0.8, 40);
 	map(ZenithNoClash) := 1;
 	playSnd{value: S2,2;}
 	hitDef{attr: S, NA;
@@ -515,7 +561,7 @@ if animElem = 4 {
 	air.hittime: 12;
 	fall: 1;
 	fall.recover: 1;
-	fall.recovertime: 45;
+	fall.recovertime: 55;
 	yaccel: 0.25;}
 
 } else if animElem = 6 {
@@ -614,6 +660,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 }
 
 if !time {
+	call ComboFactors(0.93, 10);
 	explod{anim: 515; ID: 515; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); sprpriority: 5; shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: sub; alpha: 200,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1;}
 }
 
@@ -830,6 +877,7 @@ let beamEndY = 0.0;
 ignoreHitPause {
 
 if !time {
+	call ComboFactors(0.98, 4);
 	explod{anim: 521; ID: 521; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); sprpriority: 4; shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: add; alpha: 256,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1;}
 	explod{anim: 523; ID: 523; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); sprpriority: 4; shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: add; alpha: 256,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1;}
 }
@@ -903,7 +951,7 @@ ignoreHitPause for i = 0; numExplod(524) - 1; 1 {
 }
 
 if !moveContact {
-	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: 5,Hit; damage: 15,0; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; yaccel: 0.25; ground.velocity: -9,-4; guard.velocity: -6.5; air.velocity: -9,-4; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 4; p1getp2facing: 0; fall: 1; fall.yvelocity: 0; fall.recover: 1; fall.recovertime: 40; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1;}
+	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: 5,Hit; damage: 15,0; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; yaccel: 0.25; ground.velocity: -9,-4; guard.velocity: -6.5; air.velocity: -9,-4; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 4; p1getp2facing: 0; fall: 1; fall.yvelocity: 0; fall.recover: 1; fall.recovertime: 50; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1;}
 }
 
 [StateDef 522;
