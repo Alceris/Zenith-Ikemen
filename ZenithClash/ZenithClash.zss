@@ -1,0 +1,192 @@
+[StateDef -4]
+ignoreHitPause {
+
+if isHelper(1211920) {
+	if playerId(lastPlayerID),runOrder > runOrder && !playerId(lastPlayerID),isHelper(1211920) {
+		sysVar(4444) := 1;
+		helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1; redirectid: root,ID;}
+		assertSpecial{flag: RunLast; redirectid: lastPlayerID;}
+		destroySelf{}
+	}
+}
+
+if ID = playerIndex(0),ID && numHelper(1211920) = 0 {
+	helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1;}
+	assertSpecial{flag: RunLast; redirectid: lastPlayerID;}
+}
+
+}
+[StateDef +1]
+ignoreHitPause {
+
+if isHelper(1211920) && root,ID = playerIndex(0),ID && !sysVar(4444) {
+	for i = 0; numPlayer - 1; 1 {
+		let charID = playerIndex($i),ID; # Store this in a local variable so we don't have to go through the redirect every time we need the ID.
+		if playerIndex($i),isAsserted(playerpush) {
+			push{redirectid: playerIndex($i),ID;} # In order to get accurate clsn overlap, the push logic must happen earlier.
+		}
+		mapSet{map: "ZenithClashes"; value: 0; redirectid: $charID;} # Reset single-frame variables
+		mapSet{map: "ZenithClashesEqPrio"; value: 0; redirectid: $charID;}
+		mapSet{map: "ZenithClashesHiPrio"; value: 0; redirectid: $charID;}
+		mapSet{map: "ZenithClashesLoPrio"; value: 0; redirectid: $charID;}
+		mapSet{map: "ZenithClashNonCompat"; value: 0; redirectid: $charID;}
+		if !playerIndex($i),const(Zenith.Clash) && playerIndex($i),time = 0 { # Timer
+			mapSet{map: "ZenithClashTime"; value: 0; redirectid: $charID;}
+		} else if playerIndex($i),map(ZenithClashTime) > 0 {
+			mapAdd{map: "ZenithClashTime"; value: 1; redirectid: $charID;}
+		}
+	}
+	for i = 0; numPlayer - 1; 1 {
+		playerPush{value: 0; redirectid: playerIndex($i),ID;} # Prevent push logic from happening at its usual time, because that leads to clsnoverlap inconsistencies.
+		if playerIndex($i),map(ZenithNoClash) {
+			continue;
+		}
+		let charID = playerIndex($i),ID;
+		let compat = playerIndex($i),const(Zenith.Clash);
+		for en = 0; numPlayer -1; 1 {
+			let enID = playerIndex($en),ID;
+			if playerIndex($en),numProj > 0 {
+				for p = playerIndex($en),numProj - 1; 0; -1 {
+					if !(playerIndex($en),projVar(-1, $p, attr) = SCA,AA && playerIndex($i),hitDefAttr = SCA,AA) && !(playerIndex($en),projVar(-1, $p, attr) = SCA,AP && playerIndex($i),hitDefAttr = SCA,AP) {
+						continue;
+					}
+					if playerIndex($en),projVar(-1, $p, teamside) = playerIndex($i),teamSide || playerIndex($en),projVar(-1, $p, projhits) = 0 {
+						continue;
+					}
+					if playerIndex($en),projClsnOverlap($p, $charID, clsn1) {
+						mapAdd{map: "ZenithClashes"; value: 1; redirectid: $charID;}
+						mapSet{map: "ZenithClashTime"; value: 1; redirectid: $charID;}
+						let pr1 = 0;
+						let pr2 = playerIndex($en),projVar(-1, $p, projpriority);
+						if playerIndex($i),map(ZenithClash) {
+							let pr1 = playerIndex($i),map(ZenithClashPriority);
+						} else {
+							let pr1 = playerIndex($i),hitDefVar(priority);
+						}
+						if $pr1 = $pr2 {
+							mapAdd{map: "ZenithClashesEqPrio"; value: 1; redirectid: $charID;}
+							if !$compat {
+								modifyPlayer{moveguarded: 1; redirectid: $charID;}
+							}
+							modifyProjectile{index: $p; projhits: playerIndex($en),projVar(-1, $p, projhits)-1; redirectid: $enID;}
+							if playerIndex($i),map(ZenithClashPoints) > 0 && playerIndex($i),map(ZenithClashesEqPrio) >= playerIndex($i),map(ZenithClashPoints) {
+								modifyHitDef{attr: ; redirectid: $charID;}
+							}
+						} else if $pr1 > $pr2 {
+							mapAdd{map: "ZenithClashesLoPrio"; value: 1; redirectid: $charID;}
+							modifyProjectile{index: $p; projhits: 0; redirectid: $enID;}
+						} else {
+							mapAdd{map: "ZenithClashesHiPrio"; value: 1; redirectid: $charID;}
+							modifyHitDef{attr: ; redirectid: $charID;}
+						}
+					}
+				}
+			}
+			if $en <= $i || playerIndex($en),map(ZenithNoClash) {
+				continue;
+			}
+			let enCompat = playerIndex($en),const(Zenith.Clash);
+			if playerIndex($en),isHelper && !$enCompat && playerIndex($en),moveType = A && playerIndex($en),animElemVar(numclsn1) > 0 && playerIndex($en),animElemVar(numclsn2) > 0 && playerIndex($en),hitDefAttr != SCA,AA,AP,AT {
+			} else if !(playerIndex($en),hitDefAttr = SCA,AA && ((!playerIndex($i),map(ZenithClash) && playerIndex($i),hitDefAttr = SCA,AA) || playerIndex($i),map(ZenithClashA))) && !(playerIndex($en),hitDefAttr = SCA,AP && ((!playerIndex($i),map(ZenithClash) && playerIndex($i),hitDefAttr = SCA,AP) || playerIndex($i),map(ZenithClashP))) {
+				continue;
+			}
+			if playerIndex($i),teamSide != playerIndex($en),teamSide && !playerIndex($i),hasHit($enID) && !playerIndex($en),hasHit($charID) {
+				if playerIndex($i),clsnOverlap(clsn1, $enID, clsn1) || (playerIndex($i),clsnOverlap(clsn1, $enID, clsn2) && playerIndex($i),clsnOverlap(clsn2, $enID, clsn1)) || (playerIndex($en),isHelper && !$enCompat && playerIndex($i),clsnOverlap(clsn1, $enID, clsn2)) {
+					let pr1 = 0;
+					let pr2 = 0;
+					if playerIndex($i),map(ZenithClash) {
+						let pr1 = playerIndex($i),map(ZenithClashPriority);
+					} else {
+						let pr1 = playerIndex($i),hitDefVar(priority);
+					}
+					if playerIndex($en),map(ZenithClash) {
+						let pr2 = playerIndex($en),map(ZenithClashPriority);
+					} else {
+						let pr2 = playerIndex($en),hitDefVar(priority);
+					}
+					mapAdd{map: "ZenithClashes"; value: 1; redirectid: $charID;}
+					mapSet{map: "ZenithClashTime"; value: 1; redirectid: $charID;}
+					mapSet{map: "ZenithClashTime"; value: 1; redirectid: $enID;}
+					let dn1 = 0;
+					let dn2 = 0;
+					if playerIndex($en),isHelper {
+						let dn1 = playerIndex($i),map(ZenithClashDNHH); # "Don't Negate Helper Hit"
+					} else {
+						let dn1 = playerIndex($i),map(ZenithClashDNPH); # "Don't Negate Player Hit"
+					}
+					if playerIndex($i),isHelper {
+						let dn2 = playerIndex($en),map(ZenithClashDNHH);
+					} else {
+						let dn2 = playerIndex($en),map(ZenithClashDNPH);
+					}
+					if $pr1 = $pr2 {
+						mapAdd{map: "ZenithClashesEqPrio"; value: 1; redirectid: $charID;}
+						mapAdd{map: "ZenithClashes"; value: 1; redirectid: $enID;}
+						mapAdd{map: "ZenithClashesEqPrio"; value: 1; redirectid: $enID;}
+						if $compat || $enCompat {
+							modifyPlayer{hitpausetime: max(playerIndex($i),hitPauseTime, max(playerIndex($i),map(ZenithClashEqPause), playerIndex($en),map(ZenithClashEqP2Pause))); redirectid: $charID;}
+							modifyPlayer{hitpausetime: max(playerIndex($en),hitPauseTime, max(playerIndex($i),map(ZenithClashEqP2Pause), playerIndex($en),map(ZenithClashEqPause))); redirectid: $enID;}
+						} else {
+							modifyPlayer{hitpausetime: max(playerIndex($i),hitPauseTime, 26); redirectid: $charID;}
+							modifyPlayer{hitpausetime: max(playerIndex($en),hitPauseTime, 26); redirectid: $enID;}
+						}
+						if $dn1+$dn2 <= 0 {
+							setHasHit{playerid: $enID; redirectid: $charID;}
+							setHasHit{playerid: $charID; redirectid: $enID;}
+						}
+						if !$compat {
+							modifyPlayer{moveguarded: 1; redirectid: $charID;}
+							mapSet{map: "ZenithClashNonCompat"; value: 1; redirectid: $enID;}
+						}
+						if !$enCompat {
+							modifyPlayer{moveguarded: 1; redirectid: $enID;}
+							mapSet{map: "ZenithClashNonCompat"; value: 1; redirectid: $charID;}
+						}
+						if playerIndex($i),map(ZenithClashPoints) > 0 && playerIndex($i),map(ZenithClashesEqPrio) >= playerIndex($i),map(ZenithClashPoints) {
+							modifyHitDef{attr: ; redirectid: $charID;}
+						}
+						if playerIndex($en),map(ZenithClashPoints) > 0 && playerIndex($en),map(ZenithClashesEqPrio) >= playerIndex($en),map(ZenithClashPoints) {
+							modifyHitDef{attr: ; redirectid: $enID;}
+						}
+					} else if $pr1 > $pr2 {
+						mapAdd{map: "ZenithClashesLoPrio"; value: 1; redirectid: $charID;}
+						mapAdd{map: "ZenithClashesHiPrio"; value: 1; redirectid: $enID;}
+						mapAdd{map: "ZenithClashes"; value: 1; redirectid: $enID;}
+						modifyHitDef{attr: ; redirectid: $enID;}
+						if !$enCompat {
+							modifyPlayer{moveguarded: 1; redirectid: $enID;}
+							mapSet{map: "ZenithClashNonCompat"; value: 1; redirectid: $charID;}
+						}
+					} else {
+						mapAdd{map: "ZenithClashesLoPrio"; value: 1; redirectid: $enID;}
+						mapAdd{map: "ZenithClashesHiPrio"; value: 1; redirectid: $charID;}
+						mapAdd{map: "ZenithClashes"; value: 1; redirectid: $enID;}
+						modifyHitDef{attr: ; redirectid: $charID;}
+						if !$compat {
+							modifyPlayer{moveguarded: 1; redirectid: $charID;}
+							mapSet{map: "ZenithClashNonCompat"; value: 1; redirectid: $enID;}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+}
+
+#===============================================================================
+# PostUpdate
+#===============================================================================
+[StateDef 1211920;
+type: S; movetype: H; physics: N;
+anim: 9999; ctrl: 0; velset: 0, 0;]
+ignoreHitPause {
+
+assertSpecial{flag: RunLast; flag2: Invisible;}
+notHitBy{attr: SCA,AA,AP,AT; time: -1;}
+overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
+overrideClsn{group: clsn1; index: -1; rect: 0, 0, 0, 0;}
+overrideClsn{group: clsn2; index: -1; rect: 0, 0, 0, 0;}
+
+}
