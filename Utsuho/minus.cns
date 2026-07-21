@@ -1,0 +1,35 @@
+[StateDef -4]
+
+[State 0, AssertSpecial]
+type = AssertSpecial
+trigger1 = !ishelper
+trigger1 = !incustomstate
+flag = sizepushonly
+ignorehitpause = 1
+
+[State -4, ShaderSet]
+type = ShaderSet
+trigger1 = !ishelper
+shader = "utsuho_cape"
+shadertex1.spr = 999,999
+shaderparam.p0 = screenwidth
+shaderparam.p1 = screenheight
+shaderparam.p2 = 1.3333333333333333333333333333333/(screenwidth/screenheight)
+shaderparam.p3 = sysfvar(999)
+time = -1
+ignorehitpause = 1
+
+[State 0, VarAdd]
+type = VarAdd
+trigger1 = !ishelper
+trigger1 = !pausetime
+sysfvar(999) = 0.05/60
+ignorehitpause = 1
+
+[State 0, VarAdd]
+type = VarAdd
+trigger1 = !ishelper
+trigger1 = !pausetime
+trigger1 = sysfvar(999) > 1
+sysfvar(999) = -1
+ignorehitpause = 1

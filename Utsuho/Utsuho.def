@@ -1,0 +1,39 @@
+[Info]
+name = "12.3thprojectokuumaiden"
+displayname = "Utsuho Reiuji"
+versiondate = Nov,25,2019
+mugenversion = 1.1
+ikemenversion = 1.0
+author = "Alceris"
+
+[Files]
+sprite = Utsuho.sff
+anim = Utsuho.air
+sound = Utsuho.snd
+cmd = Utsuho.cmd
+cns = Utsuho.cns
+stcommon = common1.cns
+st0 = minus.cns
+st1 = Utsuho_common.st
+st2 = Utsuho.st
+st3 = Utsuho.zss
+
+[Palette Keymap]
+a = 1
+b = 2
+c = 3
+x = 4
+y = 5
+z = 6
+a2 = 7
+b2 = 8
+c2 = 9
+x2 = 10
+y2 = 11
+z2 = 12
+
+[Shaders]
+utsuho_cape = cape.frag
+trans_rights = trans.frag
+soku_tail = tail.frag
+nuke_beam = beam.frag
