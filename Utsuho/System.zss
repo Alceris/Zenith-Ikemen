@@ -1,0 +1,320 @@
+[Function ActionStart(ActionLock)]
+map(ActionLock) := $ActionLock;
+map(CanActionCancel) := 0;
+map(CanMotionCancel) := 0;
+map(CanGuard) := 0;
+
+#===============================================================================
+# PreUpdate
+#===============================================================================
+[StateDef 1618521;
+type: S; movetype: I; physics: N;
+anim: 9999; ctrl: 0; velset: 0, 0;]
+ignoreHitPause {
+
+assertSpecial{flag: RunFirst;}
+notHitBy{attr: SCA,AA,AP,AT; time: 1; slot: 0;}
+overrideClsn{group: size; index: 0; rect: 0, 0, 0, 0;}
+
+for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
+	let charID = player($i),ID;
+	if player($i),moveType = H {
+		if player($i),getHitVar(frame) {
+			if !player($i),getHitVar(guarded) {
+				let prevrate = 1.0;
+				let hashit = 0;
+				let ro = 0;
+				for h = 0; root,numHelper; 1 {
+					if root,helperIndex($h),moveHitVar(frame) && root,helperIndex($h),hasHit($charID) {
+						let origdamage = round(-root,helperIndex($h),hitDefVar(hitdamage)*root,helperIndex($h),attack/player($i),defence, 0);
+						let damage = round($origdamage*player($i),map(SokuComboRate)*lerp(0.7, 1, float(player($i),life)/player($i),lifeMax), 0);
+						let prevrate = player($i),map(SokuComboRate);
+						lifeAdd{value: $damage; kill: player($i),getHitVar(kill); absolute: 1; redirectid: $charID;}
+						getHitVarSet{damage: max(player($i),getHitVar(damage)+$origdamage, 0); redirectid: $charID;}
+						mapSet{map: "SokuComboLimit"; value: player($i),map(SokuComboLimit)+root,helperIndex($h),map(LimitGain); redirectid: $charID;}
+						if player($i),map(SokuComboLimit) >= 100 {
+							getHitVarSet{damage: 0; redirectid: $charID;}
+							break;
+						}
+						mapSet{map: "SokuComboRate"; value: player($i),map(SokuComboRate)*root,helperIndex($h),map(Proration); redirectid: $charID;}
+						if player($i),getHitVar(playerno) = playerNo && root,helperIndex($h),runOrder > $ro {
+							mapSet{map: "SokuGetHitType"; value: root,helperIndex($h),map(SokuHitType); redirectid: $charID;}
+							let ro = root,helperIndex($h),runOrder;
+						}
+					}
+				}
+				if player($i),hitFall {
+					getHitVarSet{fall.recovertime: (player($i),getHitVar(fall.recovertime)-player($i),getHitVar(HitShakeTime))*$prevrate + player($i),getHitVar(HitShakeTime); redirectid: $charID;}
+				}
+			}
+		}
+		if player($i),map(SokuComboLimit) >= 100 {
+			getHitVarSet{fall.recover: 0; redirectid: $charID;}
+			notHitBy{attr: SCA,AA,AP,AT; time: 1; slot: 7; redirectid: $charID;}
+		} else if player($i),hitFall && player($i),canRecover {
+			notHitBy{attr: SCA,AA,AP,AT; time: 1; slot: 7; redirectid: $charID;}
+		}
+		if player($i),hitShakeOver && player($i),getHitVar(playerno) = playerNo && (player($i),stateType = S || player($i),stateType = C) && player($i),getHitVar(stand.friction) = 1 {
+			let xvel = player($i),vel X;
+			let dir = sign($xvel);
+			if player($i),getHitVar(guarded) {
+				velSet{x: max(0,abs($xvel)-0.3)*$dir; redirectid: $charID;}
+			} else if player($i),hitFall {
+				velSet{x: max(0,abs($xvel)-0.5)*$dir; redirectid: $charID;}
+			} else {
+				velSet{x: max(0,abs($xvel)-1.5)*$dir; redirectid: $charID;}
+			}
+		}
+		if player($i),getHitVar(playerid) = root,ID && player($i),backEdgeBodyDist+player($i),vel X <= 0 {
+			mapSet{map: "DoSokuCornerPush"; value: 1+player($i),getHitVar(guarded); redirectid: root,ID;}
+		}
+	} else {
+		mapSet{map: "SokuComboLimit"; value: 0; redirectid: $charID;}
+		mapSet{map: "SokuComboRate"; value: 1; redirectid: $charID;}
+		mapSet{map: "SokuGetHitType"; value: 0; redirectid: $charID;}
+	}
+}
+
+for t = 0; root,numTarget-1; 1 {
+	let charID = root,target(-1, $t),ID;
+	if root,target(-1, $t),getHitVar(frame) && (root,target(-1, $t),pos X-root,pos X)*root,facing < 0 {
+		getHitVarSet{xvel: -root,target(-1, $t),getHitVar(xvel); redirectid: $charID;}
+	}
+	if !root,target(-1, $t),map(SokuGetHitType) && root,target(-1, $t),hitFall && !root,target(-1, $t),pauseTime && !root,target(-1, $t),inCustomState && root,target(-1, $t),stateType != L && root,target(-1, $t),hitShakeOver && root,target(-1, $t),vel Y <= 0 {
+		velAdd{y: root,target(-1, $t),getHitVar(yaccel); redirectid: $charID;}
+	}
+}
+
+}
+
+[StateDef -4]
+ignoreHitPause {
+
+if isHelper(1211920) {
+	if playerId(lastPlayerID),runOrder > runOrder && !playerId(lastPlayerID),isHelper(1211920) {
+		sysVar(4444) := 1;
+		helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1; redirectid: root,ID;}
+		assertSpecial{flag: RunLast; redirectid: lastPlayerID;}
+		destroySelf{}
+	}
+}
+
+assertSpecial{flag: NoJump; flag2: NoStandGuard; flag3: NoCrouchGuard; flag4: NoAirGuard; flag5: NoIntroReset;}
+
+if inputtime(a) > 0 {
+	if command = "6a" {assertCommand{name: "6a"; buffer.time: max(8-inputtime(a), 2);}}
+	if command = "4a" {assertCommand{name: "4a"; buffer.time: max(8-inputtime(a), 2);}}
+	if command = "1a" {assertCommand{name: "1a"; buffer.time: max(8-inputtime(a), 2);}}
+	if command = "3a" {assertCommand{name: "3a"; buffer.time: max(8-inputtime(a), 2);}}
+	if command = "2a" {assertCommand{name: "2a"; buffer.time: max(8-inputtime(a), 2);}}
+	if command = "a" {assertCommand{name: "a"; buffer.time: max(8-inputtime(a), 2);}}
+}
+
+if inputtime(b) > 0 {
+	if command = "b" {assertCommand{name: "b"; buffer.time: max(8-inputtime(b), 2);}}
+}
+
+if inputtime(c) > 0 {
+	if command = "c" {assertCommand{name: "c"; buffer.time: max(8-inputtime(c), 2);}}
+	if command = "6c" {assertCommand{name: "6c"; buffer.time: max(8-inputtime(c), 2);}}
+	if command = "4c" {assertCommand{name: "4c"; buffer.time: max(8-inputtime(c), 2);}}
+	if command = "2c" {assertCommand{name: "2c"; buffer.time: max(8-inputtime(c), 2);}}
+}
+
+if !isHelper {
+
+if introState || roundState != 2 {
+	notHitBy{attr: SCA,AA,AP,AT; time: 1; slot: 5;}
+}
+
+map(NoElectron) := 0;
+
+if !numHelper(10990) {
+	helper{name: "ElectronPos"; id: 10990; stateno: 10990; supermovetime: 0; pausemovetime: 0;}
+}
+
+if !numHelper(1211920) {
+	helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1;}
+	assertSpecial{flag: RunLast; redirectid: lastPlayerID;}
+}
+
+if !numHelper(1618521) {
+	helper{name: "PreUpdate"; id: 1618521; stateno: 1618521; supermovetime: -1; pausemovetime: -1;}
+}
+
+}
+
+}
+
+[StateDef -2]
+
+if map(DoSokuCornerPush) = 1 {
+	posAdd{x: map(SokuCornerPush)*facing;}
+} else if map(DoSokuCornerPush) = 2 {
+	posAdd{x: map(SokuGuardCornerPush)*facing;}
+}
+
+map(SokuCornerPush) := max(0, abs(map(SokuCornerPush))-map(SokuCornerPushDecel))*sign(map(SokuCornerPush));
+map(SokuGuardCornerPush) := max(0, abs(map(SokuGuardCornerPush))-map(SokuGuardCornerPushDecel))*sign(map(SokuGuardCornerPush));
+
+if !map(SokuCornerPush) && !map(SokuGuardCornerPush) {
+	map(DoSokuCornerPush) := 0;
+}
+
+#===============================================================================
+# PostUpdate
+#===============================================================================
+[StateDef 1211920;
+type: S; movetype: H; physics: N;
+anim: 9999; ctrl: 0; velset: 0, 0;]
+ignoreHitPause {
+
+assertSpecial{flag: RunLast;}
+notHitBy{attr: SCA,AA,AP,AT; time: -1;}
+
+for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
+}
+
+for i = 0; numPlayer - 1; 1 {
+	let charID = playerIndex($i),ID;
+	assertSpecial{flag: NoFallDefenceUp; redirectid: $charID;}
+	if playerIndex($i),teamSide != root,teamSide && root,isAsserted(playerpush) && playerIndex($i),isAsserted(playerpush) && root,clsnOverlap(size, $charID, size) {
+		let ff = sign(playerIndex($i),pos X+(playerIndex($i),distOffset X*playerIndex($i),facing)-(root,pos X+(root,distOffset X*root,facing)));
+		let p1c = 0.0;
+		let p2c = 0.0;
+		if $ff = 0 {
+			push{redirectid: $charID;}
+			let ff = sign(playerIndex($i),pos X+(playerIndex($i),distOffset X*playerIndex($i),facing)-(root,pos X+(root,distOffset X*root,facing)));
+		}
+		if $ff = root,facing {
+			let p1c = root,clsnVar(size, 0, front)*root,facing;
+		} else {
+			let p1c = root,clsnVar(size, 0, back)*root,facing;
+		}
+		if $ff != playerIndex($i),facing {
+			let p2c = playerIndex($i),clsnVar(size, 0, front)*playerIndex($i),facing;
+		} else {
+			let p2c = playerIndex($i),clsnVar(size, 0, back)*playerIndex($i),facing;
+		}
+		let l = 0;
+		while $l < 300 && abs(playerIndex($i),pos X + $p2c - root,pos X - $p1c) > 0.01
+		{
+			push{redirectid: $charID;}
+			let l = $l+1;
+		}
+	}
+}
+
+if !root,spriteVar(height) {
+	changeAnim{value: 0; redirectid: root,ID;}
+}
+
+}
+
+[StateDef +1]
+
+if !pauseTime {
+	if map(GrazeTime) > 0 {
+		notHitBy{attr: ,AP; time: 1; slot: 1;}
+		map(GrazeTime) := map(GrazeTime)-1;
+	}
+
+if !isHelper && !inCustomState {
+
+if !ctrl {
+	if map(CanMotionCancel) && stateType != A && command = "holdup" {
+		call ActionStart(1);
+		changeState{value: 41; ctrl: 0; continue: 1;}
+	}
+} else {
+	call ActionStart(0);
+	if stateType != A {
+		if p2Dist X < 0 {turn{}}
+		if command = "SuperJump" {
+			assertCommand{name: "SuperJump"; buffer.time: 0;}
+			changeState{value: 41; ctrl: 0; continue: 1;}
+		} else if command = "holdup" {
+			changeState{value: 40+(command = "holdx"); ctrl: 0; continue: 1;}
+		} else if command = "holddown" && stateType = S {
+			changeState{value: 10; ctrl: 1; continue: 1;}
+		} else if stateNo != 20 && (command = "left" || command = "right") {
+			changeState{value: 20; ctrl: 1; continue: 1;}
+		} else if stateType = C && command != "holddown" {
+			changeState{value: 12; ctrl: 1; continue: 1;}
+		}
+	}
+}
+
+if stateType != A && command = "holdx" {
+	if ctrl && ((command = "right" && facing = 1) || (command = "left" && facing = -1)) {
+		call ActionStart(50);
+		changeState{value: 100; ctrl: 0; continue: 1;}
+	} else if ((command = "right" && facing = -1) || (command = "left" && facing = 1)) && (ctrl || map(CanMotionCancel)) {
+		call ActionStart(50);
+		changeState{value: 105; ctrl: 0; continue: 1;}
+	}
+}
+
+if !introState {
+	if stateNo = 100 && command = "b" && command = "holdfwd" {
+		assertCommand{name: "b"; buffer.time: 0;}
+		call ActionStart(100);
+		changeState{value: 310; ctrl: 0; continue: 1;}
+	} else if stateType != A && ((command = "3a" && facing = 1) || (command = "1a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
+		assertCommand{name: "6a"; buffer.time: 0;}
+		assertCommand{name: "4a"; buffer.time: 0;}
+		assertCommand{name: "2a"; buffer.time: 0;}
+		assertCommand{name: "3a"; buffer.time: 0;}
+		assertCommand{name: "1a"; buffer.time: 0;}
+		assertCommand{name: "a"; buffer.time: 0;}
+		call ActionStart(30);
+		changeState{value: 410; ctrl: 0; continue: 1;}
+	} else if stateType != A && floor(map(ZenithSpecialMotion)/1000) = 326 && floor(map(ZenithSpecialButton))&4 && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 50)) {
+		assertCommand{name: "6c"; buffer.time: 0;}
+		assertCommand{name: "4c"; buffer.time: 0;}
+		assertCommand{name: "2c"; buffer.time: 0;}
+		assertCommand{name: "c"; buffer.time: 0;}
+		call ActionStart(100);
+		changeState{value: 1105; ctrl: 0; continue: 1;}
+	} else if stateType != A && floor(map(ZenithSpecialMotion)/1000) = 326 && floor(map(ZenithSpecialButton))&2 && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 50)) {
+		assertCommand{name: "b"; buffer.time: 0;}
+		call ActionStart(100);
+		changeState{value: 1100; ctrl: 0; continue: 1;}
+	} else if stateType != A && command = "a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 10)) {
+		assertCommand{name: "a"; buffer.time: 0;}
+		call ActionStart(20);
+		changeState{value: 200; ctrl: 0; continue: 1;}
+	} else if command = "2c" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 40)) {
+		assertCommand{name: "6c"; buffer.time: 0;}
+		assertCommand{name: "4c"; buffer.time: 0;}
+		assertCommand{name: "2c"; buffer.time: 0;}
+		assertCommand{name: "c"; buffer.time: 0;}
+		call ActionStart(50);
+		changeState{value: cond(stateType = A, 725,525); ctrl: 0; continue: 1;}
+	} else if ((command = "6c" && facing = 1) || (command = "4c" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 40)) {
+		assertCommand{name: "6c"; buffer.time: 0;}
+		assertCommand{name: "4c"; buffer.time: 0;}
+		assertCommand{name: "c"; buffer.time: 0;}
+		call ActionStart(50);
+		changeState{value: 520; ctrl: 0; continue: 1;}
+	} else if command = "c" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 40)) {
+		assertCommand{name: "c"; buffer.time: 0;}
+		call ActionStart(50);
+		changeState{value: 510; ctrl: 0; continue: 1;}
+	}
+}
+
+}
+}
+
+if inputTime(B) > 0 && (ctrl || stateno = [120,159] || map(CanGuard)) {
+	if stateType != A {
+		if inputTime(D) > 0 {
+			guard{guardflag: L;}
+		} else {
+			guard{guardflag: H;}
+		}
+	} else {
+		guard{guardflag: A;}
+	}
+}

@@ -11,16 +11,10 @@ Type = DestroySelf
 Trigger1 = IsHelper
 ignorehitpause = 1
 
-[State 0, Turn]
-type = Turn
-trigger1 = p2dist X < 0
-
 [State 0, CtrlSet]
 type = CtrlSet
-trigger1 = roundstate = 2
-trigger1 = !introstate
+trigger1 = introstate != [1,2]
 value = 1
-ignorehitpause = 1
 
 [State ChangeAnim]
 type = ChangeAnim
@@ -60,10 +54,6 @@ trigger1 = animelemtime(2) >= 0
 map = "NoElectron"
 value = 1
 
-[State 0, Turn]
-type = Turn
-trigger1 = p2dist X < 0
-
 [State Stop]
 type = VelSet
 trigger1 = vel X
@@ -94,10 +84,6 @@ trigger1 = 1
 map = "NoElectron"
 value = 1
 
-[State 0, Turn]
-type = Turn
-trigger1 = p2dist X < 0
-
 [State Stop]
 type = VelSet
 trigger1 = vel X
@@ -122,10 +108,6 @@ trigger1 = animelemno(0) = 2
 map = "NoElectron"
 value = 1
 
-[State 0, Turn]
-type = Turn
-trigger1 = p2dist X < 0
-
 [State Stop]
 type = VelSet
 trigger1 = vel X
@@ -148,6 +130,7 @@ ctrl = 1
 type    = S
 movetype = I
 physics = S
+ctrl = 1
 sprpriority = 0
 
 [State 20, 1]
@@ -259,12 +242,6 @@ type = ChangeAnim
 trigger1 = anim != [41,46]
 value = ifelse(vel Y >= const(movement.yaccel)*-14.0,44,ifelse(vel X < 0,43,ifelse(vel X > 0,42,41)))
 elem = ifelse(vel Y < const(movement.yaccel)*-14.0,1,5)
-
-[State 50, FallAnim]
-type = ChangeAnim
-trigger1 = anim = [41,43]
-trigger1 = !animtime
-value = anim+3
 
 [State Dead]
 type = ChangeState

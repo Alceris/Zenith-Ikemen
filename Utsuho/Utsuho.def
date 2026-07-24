@@ -17,6 +17,9 @@ st0 = minus.cns
 st1 = Utsuho_common.st
 st2 = Utsuho.st
 st3 = Utsuho.zss
+st4 = Attack.zss
+st5 = Skill.zss
+st6 = System.zss
 
 [Palette Keymap]
 a = 1
