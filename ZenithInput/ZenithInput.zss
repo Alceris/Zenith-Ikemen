@@ -1,0 +1,139 @@
+[Function ZenithBuffer(inputs, numinputs)]
+ignoreHitPause if (floor(map(ZenithInputDirection))%10) != $inputs {
+	mapSet{map: "ZenithInput2"; value: floor(map(ZenithInput2)/(10**$numinputs))+floor((floor(map(ZenithInput))%(10**$numinputs))*(1000000/(10**$numinputs)));}
+	mapSet{map: "ZenithInput"; value: floor(map(ZenithInput)/(10**$numinputs))+floor($inputs*(1000000/(10**$numinputs)));}
+	mapSet{map: "ZenithInputDirection"; value: floor($inputs/((10**($numinputs-1))))+(100*map(ZenithInputTime));}
+}
+
+[StateDef -4]
+ignoreHitPause {
+	if map(ZenithInputTime) = 0 {
+		mapSet{map: "ZenithInputTime"; value: 7;}
+	}
+	if map(ZenithBufferTime) = 0 {
+		mapSet{map: "ZenithBufferTime"; value: 10;}
+	}
+	if map(ZenithInputDirection) < 100 {
+		mapSet{map: "ZenithInput2"; value: 0;}
+		mapSet{map: "ZenithInput"; value: 0;}
+		if map(ZenithFacingTimeout) <= 0 && map(ZenithFacing) != facing {
+			mapSet{map: "ZenithFacing"; value: facing;}
+			if map(ZenithInputDirection) = 6 {
+				mapSet{map: "ZenithInputDirection"; value: 4;}
+			} else if map(ZenithInputDirection) = 4 {
+				mapSet{map: "ZenithInputDirection"; value: 6;}
+			} else if map(ZenithInputDirection) = 3 {
+				mapSet{map: "ZenithInputDirection"; value: 1;}
+			} else if map(ZenithInputDirection) = 1 {
+				mapSet{map: "ZenithInputDirection"; value: 3;}
+			} else if map(ZenithInputDirection) = 9 {
+				mapSet{map: "ZenithInputDirection"; value: 7;}
+			} else if map(ZenithInputDirection) = 7 {
+				mapSet{map: "ZenithInputDirection"; value: 9;}
+			}
+		}
+	}
+	if map(ZenithFacing) = facing {
+		mapSet{map: "ZenithFacingTimeout"; value: 7;}
+	}
+
+	if (floor(map(ZenithInputDirection))%10) != 0 && command != "ZenithInputL" && command != "ZenithInputDL" && command != "ZenithInputD" && command != "ZenithInputDR" && command != "ZenithInputR" && command != "ZenithInputUL" && command != "ZenithInputU" && command != "ZenithInputUR" {
+		mapSet{map: "ZenithInputDirection"; value: 100*map(ZenithInputTime);}
+	}
+
+	if command = "ZenithInputL" {
+		if map(ZenithFacing) = 1 {
+			call ZenithBuffer(4,1);
+		} else {
+			call ZenithBuffer(6,1);
+		}
+	} else if command = "ZenithInputDL" {
+		if map(ZenithFacing) = 1 {
+			call ZenithBuffer(1,1);
+		} else {
+			call ZenithBuffer(3,1);
+		}
+	} else if command = "ZenithInputD" {
+		call ZenithBuffer(2,1);
+	} else if command = "ZenithInputDR" {
+		if map(ZenithFacing) = 1 {
+			call ZenithBuffer(3,1);
+		} else {
+			call ZenithBuffer(1,1);
+		}
+	} else if command = "ZenithInputR" {
+		if map(ZenithFacing) = 1 {
+			call ZenithBuffer(6,1);
+		} else {
+			call ZenithBuffer(4,1);
+		}
+	} else if command = "ZenithInputUL" {
+		if map(ZenithFacing) = 1 {
+			call ZenithBuffer(7,1);
+		} else {
+			call ZenithBuffer(9,1);
+		}
+	} else if command = "ZenithInputUR" {
+		if map(ZenithFacing) = 1 {
+			call ZenithBuffer(9,1);
+		} else {
+			call ZenithBuffer(7,1);
+		}
+	} else if command = "ZenithInputU" {
+		call ZenithBuffer(8,1);
+	}
+	if (map(ZenithInput) > 0 || map(ZenithSpecialMotion) > 0) && (inputTime(a) = 1 || inputTime(b) = 1 || inputTime(c) = 1 || inputTime(x) = 1 || inputTime(y) = 1 || inputTime(z) = 1 || inputTime(s) = 1 || inputTime(d) = 1 || inputTime(w) = 1) {
+		if map(ZenithInput) > 0 {
+			mapSet{map: "ZenithSpecialMotion"; value: map(ZenithInput);}
+			mapSet{map: "ZenithSpecialMotion2"; value: map(ZenithInput2);}
+			mapSet{map: "ZenithInput"; value: 0;}
+			mapSet{map: "ZenithInput2"; value: 0;}
+		}
+		if map(ZenithSpecialBuffer) = 0 {
+			mapSet{map: "ZenithSpecialBuffer"; value: map(ZenithBufferTime);}
+		}
+		mapSet{map: "ZenithSpecialButton"; value: 0;}
+		if inputTime(a) > 0 {
+			mapSet{map: "ZenithSpecialButton"; value: 1;}
+		}
+		if inputTime(b) > 0 {
+			mapSet{map: "ZenithSpecialButton"; value: floor(map(ZenithSpecialButton))|2;}
+		}
+		if inputTime(c) > 0 {
+			mapSet{map: "ZenithSpecialButton"; value: floor(map(ZenithSpecialButton))|4;}
+		}
+		if inputTime(x) > 0 {
+			mapSet{map: "ZenithSpecialButton"; value: floor(map(ZenithSpecialButton))|8;}
+		}
+		if inputTime(y) > 0 {
+			mapSet{map: "ZenithSpecialButton"; value: floor(map(ZenithSpecialButton))|16;}
+		}
+		if inputTime(z) > 0 {
+			mapSet{map: "ZenithSpecialButton"; value: floor(map(ZenithSpecialButton))|32;}
+		}
+		if inputTime(s) > 0 {
+			mapSet{map: "ZenithSpecialButton"; value: floor(map(ZenithSpecialButton))|64;}
+		}
+		if inputTime(d) > 0 {
+			mapSet{map: "ZenithSpecialButton"; value: floor(map(ZenithSpecialButton))|128;}
+		}
+		if inputTime(w) > 0 {
+			mapSet{map: "ZenithSpecialButton"; value: floor(map(ZenithSpecialButton))|256;}
+		}
+	}
+}
+[StateDef +1]
+ignoreHitPause {
+	if map(ZenithInputDirection) >= 100 {
+		mapAdd{map: "ZenithInputDirection"; value: -100;}
+	}
+	mapAdd{map: "ZenithFacingTimeout"; value: -1;}
+}
+if map(PauseZenithBuffer) = 0 && map(ZenithSpecialBuffer) > 0 {
+	mapAdd{map: "ZenithSpecialBuffer"; value: -1;}
+}
+if map(ZenithSpecialBuffer) <= 0 {
+	mapSet{map: "ZenithSpecialMotion"; value: 0;}
+	mapSet{map: "ZenithSpecialMotion2"; value: 0;}
+	mapSet{map: "ZenithSpecialButton"; value: 0;}
+}
