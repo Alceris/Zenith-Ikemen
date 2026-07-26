@@ -18,6 +18,7 @@ anim: 1100;
 sprpriority: 2;]
 
 if animElem = 6 {
+	helper{id: 1109; stateno: 1109; pos: 0,0; postype: p1; facing: 1; ownpal: 1;}
 	playSnd{value: S1100,0; volumescale: 200;}
 	helper{id: 1100; stateno: 1101; pos: 122,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Dist: 72;}
 	helper{id: 1100; stateno: 1101; pos: -122,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Cycle: 180; map.Dist: 72;}
@@ -39,7 +40,7 @@ physics: N;
 anim: 1102;
 poweradd: 0;
 ctrl: 0;
-sprpriority: 4;]
+sprpriority: 3;]
 
 ignoreHitPause {
 
@@ -97,7 +98,7 @@ posSet{x: parent,pos X+((50.0+map(Dist))*cos(rad(map(Cycle)))*facing);}
 map(Dist) := map(Dist)*0.96;
 velAdd{y: -0.225;}
 
-sprPriority{value: cond(map(Cycle)%360 > 180,5,-1);}
+sprPriority{value: cond(map(Cycle)%360 > 180,3,-1);}
 
 if var(0) = 10 || (!var(0) && map(ZenithClashNonCompat) && !HasHit(enemynear,ID)) {
 	var(0) := 0;
@@ -124,7 +125,7 @@ physics: N;
 poweradd: 0;
 velset: 0,0;
 ctrl: 0;
-sprpriority: 4;]
+sprpriority: 3;]
 
 if !time {
 	removeExplod{id: 1104;}
@@ -155,6 +156,7 @@ anim: 1101;
 sprpriority: 2;]
 
 if animElem = 6 {
+	helper{id: 1109; stateno: 1109; pos: 0,0; postype: p1; facing: 1; ownpal: 1;}
 	playSnd{value: S1100,0; volumescale: 200;}
 	helper{id: 1105; stateno: 1106; pos: 185.4,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Dist: 110.4;}
 	helper{id: 1105; stateno: 1106; pos: -185.4,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Cycle: 180; map.Dist: 110.4;}
@@ -176,7 +178,7 @@ physics: N;
 anim: 1103;
 poweradd: 0;
 ctrl: 0;
-sprpriority: 4;]
+sprpriority: 3;]
 
 ignoreHitPause {
 
@@ -234,7 +236,7 @@ posSet{x: parent,pos X+((75.0+map(Dist))*cos(rad(map(Cycle)))*facing);}
 map(Dist) := map(Dist)*0.96;
 velAdd{y: -0.225;}
 
-sprPriority{value: cond(map(Cycle)%360 > 180,5,-1);}
+sprPriority{value: cond(map(Cycle)%360 > 180,3,-1);}
 
 if var(0) = 10 || (!var(0) && map(ZenithClashNonCompat) && !HasHit(enemynear,ID)) {
 	var(0) := 0;
@@ -261,7 +263,7 @@ physics: N;
 anim: 1107;
 poweradd: 0;
 ctrl: 0;
-sprpriority: 4;]
+sprpriority: 3;]
 
 if !animTime {
 	angleSet{value: randomRange(-18000,18000)/100.0;}
@@ -339,7 +341,7 @@ movetype: I;
 physics: N;
 poweradd: 0;
 ctrl: 0;
-sprpriority: 4;]
+sprpriority: 3;]
 
 if !animTime {
 	angleSet{value: randomRange(-18000,18000)/100.0;}
@@ -349,4 +351,35 @@ trans{trans: add; alpha: lerp(256,0,time/19.0),256;}
 palFx{time: 1; mul: lerp(256,0,time/19.0),lerp(256,0,time/19.0),256;}
 if time = 19 {
 	destroySelf{}
+}
+
+[StateDef 1109;
+type: S;
+movetype: I;
+physics: N;
+anim: 1106;
+poweradd: 0;
+ctrl: 0;
+sprpriority: 0;]
+
+if !time {
+	var(0) := 14;
+	shaderSet{shader: "trans_rights"; time: -1;}
+}
+
+var(1) := min(255,var(1)+var(0));
+
+if var(0) < 0 {
+	fVar(0) := fVar(0)+0.01;
+	if var(1) <= 0 {
+		destroySelf{}
+	}
+}
+
+angleDraw{value: 0; scale: 1-fVar(0), 1-fVar(0); xangle: -80;}
+
+trans{trans: add; alpha: 1+var(1),256;}
+
+if (root,stateNo != 1100 && root,stateNo != 1105) || time = 30 {
+	var(0) := -10;
 }

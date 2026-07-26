@@ -232,8 +232,10 @@ if !ctrl {
 		if p2Dist X < 0 {turn{}}
 		if command = "SuperJump" {
 			assertCommand{name: "SuperJump"; buffer.time: 0;}
+			call ActionStart(1);
 			changeState{value: 41; ctrl: 0; continue: 1;}
 		} else if command = "holdup" {
+			call ActionStart(1);
 			changeState{value: 40+(command = "holdx"); ctrl: 0; continue: 1;}
 		} else if command = "holddown" && stateType = S {
 			changeState{value: 10; ctrl: 1; continue: 1;}
@@ -245,7 +247,15 @@ if !ctrl {
 	}
 }
 
-if stateType != A && command = "holdx" {
+if stateType = A && (ctrl || map(CanMotionCancel)) {
+	if command = "FF" {
+		call ActionStart(4);
+		changeState{value: cond(facing = 1,110,115); ctrl: 0; continue: 1;}
+	} else if command = "BB" {
+		call ActionStart(4);
+		changeState{value: cond(facing = -1,110,115); ctrl: 0; continue: 1;}
+	}
+} else if stateType != A && command = "holdx" {
 	if ctrl && ((command = "right" && facing = 1) || (command = "left" && facing = -1)) {
 		call ActionStart(50);
 		changeState{value: 100; ctrl: 0; continue: 1;}

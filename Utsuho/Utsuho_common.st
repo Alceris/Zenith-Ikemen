@@ -224,7 +224,7 @@ type = ChangeState
 trigger1 = !AnimTime
 value = 50
 anim = 41+sysvar(1)
-ctrl = 1
+ctrl = 0
 
 [StateDef 50]
 type = A
@@ -248,18 +248,18 @@ type = ChangeState
 trigger1 = !alive
 value = 5050
 
+[State 0, ChangeState]
+type = ChangeState
+trigger1 = pos Y >= 0
+trigger1 = vel Y = 0
+trigger1 = statetype = A
+value = 52
+ctrl = 1
+
 [State 0, VelAdd]
 type = VelAdd
 trigger1 = 1
 y = sysfvar(35)
-
-[State 0, ChangeState]
-type = ChangeState
-trigger1 = pos Y >= 0
-trigger1 = vel Y >= 0
-trigger1 = statetype = A
-value = 52
-ctrl = 1
 
 [State 0, PosSet]
 type = PosSet

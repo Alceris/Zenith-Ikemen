@@ -83,6 +83,7 @@ if !animTime {
 if time = 1 {
 	map(CanActionCancel) := 1;
 }
+
 if vel Y = 0 && pos Y >= 0 {
 	changeState{value: 52; ctrl: 1;}
 }
@@ -118,8 +119,6 @@ anim: 100;
 poweradd: 0;
 ctrl: 0;
 sprpriority: 0;]
-
-if !time {call ActionStart(50);}
 
 if animElemTime(3) >= 0 && animElemTime(3)%6 = 0 {
 	explod{
@@ -355,6 +354,220 @@ if vel X < 0 {
 
 if !animTime {
 	changeState{value: 0; ctrl: 1;}
+}
+
+[StateDef 110;
+type: A;
+movetype: I;
+physics: N;
+velset: 0,0;
+anim: 110;
+poweradd: 0;
+ctrl: 0;
+sprpriority: 0;]
+
+if !time {sysFVar(35) := 0;}
+
+if vel Y = 0 && pos Y >= 0 {
+	changeState{value: 52; ctrl: 1;}
+}
+
+velAdd{y: sysFVar(35);}
+
+if pos Y + vel Y >= 0 {
+	posSet{y: 0;}
+	velSet{y: 0;}
+}
+
+if animElem = 6 {
+	map(CanActionCancel) := 1;
+	map(CanMotionCancel) := 1;
+	explod{
+	id: 10100;
+	anim: 10100;
+	pos: 0,-57;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: -2;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	explod{
+	id: 10101;
+	anim: 10101;
+	pos: 38.5,-57;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: 10;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	alpha: 256,256;
+	palfx.time: -1;
+	palfx.mul: 256,256,256;
+	scale: 0.6*const(size.xscale),0.6*const(size.yscale);
+	interpolation.time: 10;
+	interpolation.scale: 2.35*const(size.xscale),2.35*const(size.yscale);
+	interpolation.palfx.mul: 0,0,256;
+	interpolation.alpha: 0,256;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	velSet{x: const(velocity.run.fwd.x); y: -3;}
+	sysFVar(35) := 0.25;
+	playSnd{value: S100,0;}
+} else if animElem = 10 {
+	ctrlSet{value: 1;}
+} else if animElem = 12 && p2Dist X < 0 {
+	turn{}
+}
+
+if animElemTime(14) < 0 {
+	if animElemTime(6) >= 0 && animElemTime(6)%6 = 1 {
+		explod{
+		id: 10102;
+		anim: 10102;
+		pos: randomRange(-1500,1500)/100.0,randomRange(0,-10000)/100.0;
+		postype: P1;
+		sprpriority: 3;
+		bindtime: 0;
+		removetime: 14;
+		supermovetime: -1;
+		pausemovetime: -1;
+		vel: -5,0;
+		trans: add;
+		alpha: 256,256;
+		palfx.time: -1;
+		palfx.mul: 256,256,256;
+		scale: const(size.xscale),const(size.yscale);
+		interpolation.time: 14;
+		interpolation.palfx.mul: 0,0,256;
+		interpolation.alpha: 0,256;
+		ownpal: 1;
+		shader: "trans_rights";
+		shadertime: -1;
+		}
+	}
+	notHitBy{value: ,AP; time: 1;}
+	if abs(vel X) > 6 {
+		velSet{x: max(abs(vel X) - 0.25, 6.0)*sign(vel X);}
+	}
+}
+
+[StateDef 115;
+type: A;
+movetype: I;
+physics: N;
+velset: 0,0;
+anim: 115;
+poweradd: 0;
+ctrl: 0;
+sprpriority: 0;]
+
+if !time {sysFVar(35) := 0;}
+
+if vel Y = 0 && pos Y >= 0 {
+	changeState{value: 52; ctrl: 1;}
+}
+
+velAdd{y: sysFVar(35);}
+
+if pos Y + vel Y >= 0 {
+	posSet{y: 0;}
+	velSet{y: 0;}
+}
+
+if animElem = 5 {
+	explod{
+	id: 10100;
+	anim: 10100;
+	pos: 1,-58.5;
+	postype: P1;
+	sprpriority: 3;
+	facing: -1;
+	bindtime: 0;
+	removetime: -2;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	explod{
+	id: 10101;
+	anim: 10101;
+	pos: 1,-58.5;
+	facing: -1;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: 10;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	alpha: 256,256;
+	palfx.time: -1;
+	palfx.mul: 256,256,256;
+	scale: 0.6*const(size.xscale),0.6*const(size.yscale);
+	interpolation.time: 10;
+	interpolation.scale: 2.35*const(size.xscale),2.35*const(size.yscale);
+	interpolation.palfx.mul: 0,0,256;
+	interpolation.alpha: 0,256;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	velSet{x: const(velocity.run.back.x); y: -3;}
+	sysFVar(35) := 0.25;
+	playSnd{value: S100,0;}
+} else if animElem = 6 {
+	map(CanActionCancel) := 1;
+	map(CanMotionCancel) := 1;
+} else if animElem = 10 {
+	ctrlSet{value: 1;}
+} else if animElem = 12 && p2Dist X < 0 {
+	turn{}
+}
+
+if animElemTime(14) < 0 {
+	if time%6 = 1 {
+		explod{
+		id: 10102;
+		anim: 10102;
+		pos: randomRange(-1500,1500)/100.0,randomRange(0,-10000)/100.0;
+		postype: P1;
+		sprpriority: 3;
+		bindtime: 0;
+		removetime: 14;
+		facing: -1;
+		supermovetime: -1;
+		pausemovetime: -1;
+		vel: 5,0;
+		trans: add;
+		alpha: 256,256;
+		palfx.time: -1;
+		palfx.mul: 256,256,256;
+		scale: const(size.xscale),const(size.yscale);
+		interpolation.time: 14;
+		interpolation.palfx.mul: 0,0,256;
+		interpolation.alpha: 0,256;
+		ownpal: 1;
+		shader: "trans_rights";
+		shadertime: -1;
+		}
+	}
+	notHitBy{value: ,AP; time: 1;}
+	if abs(vel X) > 6 {
+		velSet{x: max(abs(vel X) - 0.25, 6.0)*sign(vel X);}
+	}
 }
 
 #-------------------------------------------------------------------------------

@@ -334,7 +334,7 @@ anim: 511;
 poweradd: 0;
 velset: 2.5,0;
 ctrl: 0;
-sprpriority: 4;]
+sprpriority: 3;]
 
 ignoreHitPause {
 
@@ -359,7 +359,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 
 if !time {
 	call ComboFactors(0.93, 10);
-	explod{anim: 515; ID: 515; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); sprpriority: 5; shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: sub; alpha: 200,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1;}
+	explod{anim: 515; ID: 515; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); sprpriority: 4; shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: sub; alpha: 200,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1;}
 }
 
 if time%5 = 0 {
@@ -380,7 +380,11 @@ if map(ZenithClashesHiPrio) > 0 {
 	map(ZenithClashPoints) := 0;
 } else if map(ZenithClashesEqPrio) > 0 {
 	mapAdd{map: "ZenithClashPoints"; value: -map(ZenithClashesEqPrio);}
+	if !var(1) {
+		var(1) := 1;
+	}
 }
+
 if moveContact && (!map(ZenithClashNonCompat) || HasHit(enemynear,ID)) {
 	if !var(0) {
 		mapAdd{map: "ZenithClashPoints"; value: -1;}
@@ -391,8 +395,13 @@ if var(0) = 3 || (!var(0) && map(ZenithClashNonCompat) && !HasHit(enemynear,ID))
 	var(0) := 0;
 	moveHitReset{}
 }
-persistent(0) if map(ZenithClashesEqPrio)+map(ZenithClashesHiPrio) > 0 && map(ZenithClashPoints) < 5 {
+
+if var(1) = 2 {
 	velSet{x: 1.5}
+}
+
+if var(1) {
+	var(1) := var(1)+1;
 }
 
 if map(ZenithClashPoints) <= 0 || frontEdgeDist <= -200 || (root,movetype = H && !root,getHitVar(guarded)) || root,inCustomState {
@@ -421,7 +430,7 @@ if numExplod(514) > 0 {
 modifyExplod{ID: 515; trans: sub; alpha: 200+ceil(56*sin(pi*explodvar(515,0,time)/14.0)),256;}
 
 if !moveContact {
-	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: 4,Hit; damage: 40,0; pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; yaccel: 0.25; ground.velocity: -6.25,-7.5; guard.velocity: -6.5; air.velocity: -6.25,-7.5; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 4; p1getp2facing: 0; fall: 1; fall.yvelocity: 0; fall.recover: 1; fall.recovertime: 45; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: 4,Hit; damage: 40,0; pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; yaccel: 0.25; ground.velocity: -6.25,-7.5; guard.velocity: -6.5; air.velocity: -6.25,-7.5; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; fall: 1; fall.yvelocity: 0; fall.recover: 1; fall.recovertime: 45; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 }
 
 }
@@ -435,7 +444,7 @@ physics: N;
 anim: 511;
 poweradd: 0;
 ctrl: 0;
-sprpriority: 4;]
+sprpriority: 3;]
 
 ignoreHitPause {
 
@@ -561,7 +570,7 @@ anim: 522;
 poweradd: 0;
 velset: 0,0;
 ctrl: 0;
-sprpriority: 4;]
+sprpriority: 3;]
 
 if !map(ZenithClashesEqPrio) {
 	fVar(0) := fVar(0)+17.5;
@@ -648,7 +657,7 @@ ignoreHitPause for i = 0; numExplod(524) - 1; 1 {
 }
 
 if !moveContact {
-	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: 4,Hit; damage: 15,0; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.25; ground.velocity: -9,-4; guard.velocity: -6.5; air.velocity: -9,-4; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 4; p1getp2facing: 0; fall: 1; fall.yvelocity: 0; fall.recover: 1; fall.recovertime: 50; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: 4,Hit; damage: 15,0; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.25; ground.velocity: -9,-4; guard.velocity: -6.5; air.velocity: -9,-4; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; fall: 1; fall.yvelocity: 0; fall.recover: 1; fall.recovertime: 50; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 }
 
 [StateDef 522;
@@ -658,7 +667,7 @@ physics: N;
 anim: 522;
 poweradd: 0;
 ctrl: 0;
-sprpriority: 4;]
+sprpriority: 3;]
 
 ignoreHitPause {
 

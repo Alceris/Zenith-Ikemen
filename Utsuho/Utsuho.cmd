@@ -50,6 +50,16 @@ command = /R
 time = 0
 
 [Command]
+name = "L"
+command = L
+time = 0
+
+[Command]
+name = "R"
+command = R
+time = 0
+
+[Command]
 name = "holdx"
 command = /x
 time = 0
@@ -149,5 +159,17 @@ name = "SuperJump"
 command = $D,$U
 time = 18
 buffer.time = 16
+
+[Command]
+name = "FF"
+command = >R, >~R, >R
+time = 18
+buffer.time = 10
+
+[Command]
+name = "BB"
+command = >L, >~L, >L
+time = 18
+buffer.time = 10
 
 [Statedef -1]
