@@ -34,6 +34,10 @@ for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
 						mapSet{map: "SokuComboLimit"; value: player($i),map(SokuComboLimit)+root,helperIndex($h),map(LimitGain); redirectid: $charID;}
 						if player($i),map(SokuComboLimit) >= 100 {
 							getHitVarSet{damage: 0; redirectid: $charID;}
+							explod{id: 15400; anim: 15400; facing: player($i),facing*facing; pos: 0,-50; postype: P1; sprpriority: 0; bindtime: -1; bindid: $charID; removetime: -1; scale: 2.45,2.45; interpolation.time: 7; interpolation.scale: 1,1; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
+							modifyExplod{id: 15400; index: numExplod(15400)-1; bindid: $charID;}
+							explod{id: 15400; anim: 15401; facing: player($i),facing*facing; pos: 0,-50; postype: P1; sprpriority: 0; bindtime: -1; bindid: $charID; removetime: -1; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
+							modifyExplod{id: 15400; index: numExplod(15400)-1; bindid: $charID;}
 							break;
 						}
 						mapSet{map: "SokuComboRate"; value: player($i),map(SokuComboRate)*root,helperIndex($h),map(Proration); redirectid: $charID;}
@@ -73,6 +77,31 @@ for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
 		mapSet{map: "SokuComboRate"; value: 1; redirectid: $charID;}
 		mapSet{map: "SokuGetHitType"; value: 0; redirectid: $charID;}
 	}
+}
+
+displayToClipboard{text:"id = %d"; params: id;}
+for i = numExplod(15400)-1; 0; -1 {
+	let charID = explodVar(15400, $i, bindid);
+	appendToClipboard{text:"explod%did = %d"; params: $i,$charID;}
+	if playerId($charID),map(SokuComboLimit) < 100 {
+		explod{id: 15401; anim: explodVar(15400, $i, anim); animelem: explodVar(15400, $i, animelem); animelemtime: explodVar(15400, $i, animelemtime); facing: explodVar(15400, $i, facing)*facing; pos: 0,-50; postype: P1; sprpriority: 0; bindtime: -1; removetime: 13; trans: add; alpha: 256,256; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 13; interpolation.alpha: 0,256; interpolation.palfx.mul: 0,0,256; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
+		modifyExplod{id: 15401; index: numExplod(15401)-1; bindid: $charID;}
+		removeExplod{id: 15400; index: $i;}
+	} else {
+		let expscl = 1.1+(sin((360+explodVar(15400, $i, animtime))*pi/60)*0.1);
+		if explodVar(15400, $i, anim) = 15400 {
+			let expscl = $expscl*0.9;
+		}
+		modifyExplod{id: 15400; index: $i; scale: $expscl,$expscl;}
+	}
+}
+
+for i = 0; numExplod(15401)-1; 1 {
+	let expscl = 1.1+(sin((360+explodVar(15401, $i, animtime))*pi/60)*0.1);
+	if explodVar(15401, $i, anim) = 15400 {
+		let expscl = $expscl*0.9;
+	}
+	modifyExplod{id: 15401; index: $i; scale: $expscl,$expscl;}
 }
 
 for t = 0; root,numTarget-1; 1 {
@@ -219,6 +248,29 @@ if !pauseTime {
 		map(GrazeTime) := map(GrazeTime)-1;
 	}
 
+if numExplod(10150) && anim != [150,152] {
+	explod{id: 10151; anim: 10150; animelem: explodVar(10150,0,animelem);
+		pos: (explodVar(10150,0,pos X)-pos X)*facing,explodVar(10150,0,pos Y)-pos Y;
+		postype: P1;
+		sprpriority: sprPriority+1;
+		bindtime: 0;
+		removetime: 13;
+		trans: add;
+		alpha: 256,256;
+		interpolation.time: 13;
+		interpolation.alpha: 0,256;
+		scale: 1.5,1.5;
+		supermovetime: 0;
+		pausemovetime: 0;
+		ignorehitpause: 1;
+		ownpal: 1;
+		shader: "trans_rights";
+		shadertime: -1;}
+	removeExplod{id: 10150;}
+}
+
+if (moveType = H && anim != 150 && anim != 152) || inCustomState {map(NoElectron) := 1;}
+
 if !isHelper && !inCustomState {
 
 if !ctrl {
@@ -317,7 +369,7 @@ if !introState {
 }
 }
 
-if inputTime(B) > 0 && (ctrl || stateno = [120,159] || map(CanGuard)) {
+if ((inputTime(L) > 0 && (facing = 1 || p2,pos X >= pos X)) || (inputTime(R) > 0 && (facing = -1 || p2,pos X <= pos X))) && (ctrl || stateno = [120,159] || map(CanGuard)) {
 	if stateType != A {
 		if inputTime(D) > 0 {
 			guard{guardflag: L;}

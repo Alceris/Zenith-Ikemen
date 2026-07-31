@@ -124,43 +124,6 @@ trigger1 = !AnimTime
 value = 0
 ctrl = 1
 
-;---------------------------------------------------------------------------
-; Walk
-[Statedef 20]
-type    = S
-movetype = I
-physics = S
-ctrl = 1
-sprpriority = 0
-
-[State 20, 1]
-type = VelSet
-trigger1 = command = "holdfwd"
-x = const(velocity.walk.fwd.x)
-
-[State 20, 2]
-type = VelSet
-trigger1 = command = "holdback"
-x = const(velocity.walk.back.x)
-
-[State 0, Turn]
-type = Turn
-trigger1 = p2dist X < 0
-
-[State 20, 3]
-type = ChangeAnim
-triggerall = vel x > 0
-trigger1 = Anim != 20 && Anim != 5
-trigger2 = Anim = 5 && AnimTime = 0
-value = 20
-
-[State 20, 4]
-type = ChangeAnim
-triggerall = vel x < 0
-trigger1 = Anim != 21 && Anim != 5
-trigger2 = Anim = 5 && AnimTime = 0
-value = 21
-
 [StateDef 40]
 type = S
 movetype = I

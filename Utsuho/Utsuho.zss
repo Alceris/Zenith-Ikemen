@@ -4,6 +4,27 @@ map(CanActionCancel) := 0;
 map(CanMotionCancel) := 0;
 map(CanGuard) := 0;
 
+#-------------------------------------------------------------------------------
+# Walk
+[StateDef 20; type: S; physics: S; sprpriority: 0;]
+
+if p2Dist X < 0 {turn{}}
+
+if inputTime(L) > 0 {
+	velSet{x: const(velocity.walk.back.x)*facing}
+} else if inputTime(R) > 0 {
+	velSet{x: const(velocity.walk.fwd.x)*facing}
+}
+if vel x > 0 {
+	if cond(anim = 5, animTime = 0, anim != 20) {
+		changeAnim{value: 20}
+	}
+} else if vel x < 0 {
+	if cond(anim = 5, animTime = 0, anim != 21) {
+		changeAnim{value: 21}
+	}
+}
+
 [StateDef 41; type: S; movetype: A; physics: N; anim: 40; ctrl: 0;]
 
 attackDist{value: 0, 0;}
@@ -575,6 +596,110 @@ if animElemTime(14) < 0 {
 [StateDef 120; type: U; physics: U;]
 changeState{value: prevStateNo; ctrl: 1;}
 
+[StateDef 130; type: S; physics: S;]
+changeState{value: 0; ctrl: 1;}
+
+[StateDef 131; type: C; physics: C;]
+changeState{value: 11; ctrl: 1;}
+
+[StateDef 132; type: A; physics: N;]
+changeAnim{value: 41; elem: 12;}
+changeState{value: 50; ctrl: 1;}
+
+[StateDef 150; type: S; movetype: H; physics: S; sprpriority: 0; velset: 0,0;]
+changeAnim{value: 150;}
+if !time && p2Dist X < 0 {turn{}}
+if !numExplod(10150) {
+	explod{id: 10150; anim: 10150;
+		pos: 28.5,-66;
+		postype: P1;
+		sprpriority: sprPriority+1;
+		bindtime: -1;
+		removetime: -1;
+		scale: 1.5,1.5;
+		supermovetime: 0;
+		pausemovetime: 0;
+		ignorehitpause: 1;
+		ownpal: 1;
+		shader: "trans_rights";
+		shadertime: -1;}
+} else {
+	modifyExplod{id: 10150; postype: P1; pos: 24,-66;}
+}
+if hitShakeOver {changeState{value: 151; ctrl: 0;}}
+
+[StateDef 152; type: C; movetype: H; physics: C; sprpriority: 0; velset: 0,0;]
+changeAnim{value: 151;}
+if !time && p2Dist X < 0 {turn{}}
+if !numExplod(10150) {
+	explod{id: 10150; anim: 10150;
+		pos: 28.5,-30;
+		postype: P1;
+		sprpriority: sprPriority+1;
+		bindtime: -1;
+		removetime: -1;
+		scale: 1.5,1.5;
+		supermovetime: 0;
+		pausemovetime: 0;
+		ignorehitpause: 1;
+		ownpal: 1;
+		shader: "trans_rights";
+		shadertime: -1;}
+} else {
+	modifyExplod{id: 10150; postype: P1; pos: 28.5,-30;}
+}
+if hitShakeOver {changeState{value: 153; ctrl: 0;}}
+
+[StateDef 154; type: A; movetype: H; physics: N; sprpriority: 0; velset: 0,0;]
+if !time && p2Dist X < 0 {turn{}}
+changeAnim{value: 152;}
+if !numExplod(10150) {
+	explod{id: 10150; anim: 10150;
+		pos: 28.5,-66;
+		postype: P1;
+		sprpriority: sprPriority+1;
+		bindtime: -1;
+		removetime: -1;
+		scale: 1.5,1.5;
+		supermovetime: 0;
+		pausemovetime: 0;
+		ignorehitpause: 1;
+		ownpal: 1;
+		shader: "trans_rights";
+		shadertime: -1;}
+} else {
+	modifyExplod{id: 10150; postype: P1; pos: 28.5,-66;}
+}
+if hitShakeOver {changeState{value: 155; ctrl: 0;}}
+
+#-------------------------------------------------------------------------------
+# Air guard hit (knocked away)
+[StateDef 155; type: A; movetype: H; physics: N; anim: 152;]
+
+if time = 0 {
+	hitVelSet{x: 1; y: 1}
+	if getHitVar(yaccel) <= 0 {
+		sysFVar(35) := const(movement.yaccel);
+	} else {
+		sysFVar(35) := getHitVar(yaccel);
+	}
+}
+
+if time = getHitVar(ctrlTime) {
+	changeState{value: 50; ctrl: 1;}
+}
+
+if vel Y = 0 && pos Y >= 0 {
+	changeState{value: 52; ctrl: 1;}
+}
+
+velAdd{y: sysFVar(35);}
+
+if pos Y + vel Y >= 0 {
+	posSet{y: 0;}
+	velSet{y: 0;}
+}
+
 #-------------------------------------------------------------------------------
 # Guard (end)
 [StateDef 140; type: U; physics: U; ctrl: 1;]
@@ -661,6 +786,6 @@ if root,map(NoElectron) || root,animPlayerNo != playerNo {
 	let trailPosX = ($trailPosX-pos X)*facing;
 	let trailPosY = ($trailPosY-pos Y);
 	let trailScale = (($trailPosX**2)+($trailPosY**2))**0.5;
-	explod{id: 10991; anim: 10991; pos: 0,0; postype: P1; sprpriority: sprPriority; bindtime: 0; removetime: 7; scale: 4.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 7; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
+	explod{id: 10991; anim: 10991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; syncparams: 0; bindtime: 0; removetime: 7; scale: 4.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 7; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
 	modifyExplod{id: 10991; sprpriority: sprPriority;}
 }

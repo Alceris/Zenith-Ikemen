@@ -20,10 +20,10 @@ sprpriority: 2;]
 if animElem = 6 {
 	helper{id: 1109; stateno: 1109; pos: 0,0; postype: p1; facing: 1; ownpal: 1;}
 	playSnd{value: S1100,0; volumescale: 200;}
-	helper{id: 1100; stateno: 1101; pos: 122,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Dist: 72;}
-	helper{id: 1100; stateno: 1101; pos: -122,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Cycle: 180; map.Dist: 72;}
+	helper{id: 1100; stateno: 1101; pos: 122,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Dist: 72; inheritchannels: 1;}
+	helper{id: 1100; stateno: 1101; pos: -122,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Cycle: 180; map.Dist: 72; inheritchannels: 1;}
 } else if animElem = 8 {
-	helper{id: 1107; stateno: 1107; pos: 3.5,-70; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1;}
+	helper{id: 1107; stateno: 1107; pos: 3.5,-70; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1; inheritchannels: 1;}
 } else if animElem = 9 {
 	stateTypeSet{movetype: I;}
 	map(CanActionCancel) := 1;
@@ -46,7 +46,7 @@ ignoreHitPause {
 
 assertSpecial{flag: RunLast;}
 
-if moveHitVar(frame) {
+if moveHitVar(frame) && (!map(ZenithClashNonCompat) || hasHit(enemyNear,ID)) {
 	if moveHit {
 		playSnd{value: S0,2; volumescale: 100; channel: 2;}
 	}
@@ -158,10 +158,10 @@ sprpriority: 2;]
 if animElem = 6 {
 	helper{id: 1109; stateno: 1109; pos: 0,0; postype: p1; facing: 1; ownpal: 1;}
 	playSnd{value: S1100,0; volumescale: 200;}
-	helper{id: 1105; stateno: 1106; pos: 185.4,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Dist: 110.4;}
-	helper{id: 1105; stateno: 1106; pos: -185.4,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Cycle: 180; map.Dist: 110.4;}
+	helper{id: 1105; stateno: 1106; pos: 185.4,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Dist: 110.4; inheritchannels: 1;}
+	helper{id: 1105; stateno: 1106; pos: -185.4,-50; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.Cycle: 180; map.Dist: 110.4; inheritchannels: 1;}
 } else if animElem = 8 {
-	helper{id: 1107; stateno: 1107; pos: 3.5,-70; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1;}
+	helper{id: 1107; stateno: 1107; pos: 3.5,-70; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1; inheritchannels: 1;}
 } else if animElem = 9 {
 	stateTypeSet{movetype: I;}
 	map(CanActionCancel) := 1;
@@ -184,7 +184,7 @@ ignoreHitPause {
 
 assertSpecial{flag: RunLast;}
 
-if moveHitVar(frame) {
+if moveHitVar(frame) && (!map(ZenithClashNonCompat) || hasHit(enemyNear,ID)) {
 	if moveHit {
 		playSnd{value: S0,2; volumescale: 100; channel: 2;}
 	}
@@ -274,7 +274,7 @@ ignoreHitPause {
 angleDraw{}
 assertSpecial{flag: RunLast;}
 
-if moveHitVar(frame) {
+if moveHitVar(frame) && (!map(ZenithClashNonCompat) || hasHit(enemyNear,ID)) {
 	if moveHit {
 		playSnd{value: S0,2; volumescale: 100; channel: 2;}
 	}
