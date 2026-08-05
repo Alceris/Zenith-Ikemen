@@ -16,6 +16,7 @@ if ID = playerIndex(0),ID && numHelper(1211920) = 0 {
 }
 
 }
+
 [StateDef +1]
 ignoreHitPause {
 
@@ -86,12 +87,18 @@ if isHelper(1211920) && root,ID = playerIndex(0),ID && !sysVar(4444) {
 				continue;
 			}
 			let enCompat = playerIndex($en),const(Zenith.Clash);
-			if playerIndex($en),isHelper && !$enCompat && playerIndex($en),moveType = A && playerIndex($en),animElemVar(numclsn1) > 0 && playerIndex($en),animElemVar(numclsn2) > 0 && playerIndex($en),hitDefAttr != SCA,AA,AP,AT {
+			let fuckface = (playerIndex($en),isHelper && !$enCompat && playerIndex($en),moveType = A && playerIndex($en),animElemVar(numclsn1) > 0 && playerIndex($en),animElemVar(numclsn2) > 0 && playerIndex($en),hitDefAttr != SCA,AA,AP,AT) || (playerIndex($i),isHelper && !$compat && playerIndex($i),moveType = A && playerIndex($i),animElemVar(numclsn1) > 0 && playerIndex($i),animElemVar(numclsn2) > 0 && playerIndex($i),hitDefAttr != SCA,AA,AP,AT);
+			if $fuckface {
 			} else if !(playerIndex($en),hitDefAttr = SCA,AA && ((!playerIndex($i),map(ZenithClash) && playerIndex($i),hitDefAttr = SCA,AA) || playerIndex($i),map(ZenithClashA))) && !(playerIndex($en),hitDefAttr = SCA,AP && ((!playerIndex($i),map(ZenithClash) && playerIndex($i),hitDefAttr = SCA,AP) || playerIndex($i),map(ZenithClashP))) {
 				continue;
 			}
 			if playerIndex($i),teamSide != playerIndex($en),teamSide && !playerIndex($i),hasHit($enID) && !playerIndex($en),hasHit($charID) {
 				if playerIndex($i),clsnOverlap(clsn1, $enID, clsn1) || (playerIndex($i),clsnOverlap(clsn1, $enID, clsn2) && playerIndex($i),clsnOverlap(clsn2, $enID, clsn1)) || (playerIndex($en),isHelper && !$enCompat && playerIndex($i),clsnOverlap(clsn1, $enID, clsn2)) {
+					if $fuckface {
+						mapSet{map: "ZenithClashNonCompat"; value: 1; redirectid: $charID;}
+						mapSet{map: "ZenithClashNonCompat"; value: 1; redirectid: $enID;}
+						continue;
+					}
 					let pr1 = 0;
 					let pr2 = 0;
 					if playerIndex($i),map(ZenithClash) {
