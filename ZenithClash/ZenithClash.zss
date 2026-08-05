@@ -2,25 +2,23 @@
 ignoreHitPause {
 
 if isHelper(1211920) {
-	if playerId(lastPlayerID),runOrder > runOrder && !playerId(lastPlayerID),isHelper(1211920) {
-		sysVar(4444) := 1;
-		helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1; redirectid: root,ID;}
-		assertSpecial{flag: RunLast; redirectid: lastPlayerID;}
-		destroySelf{}
+	for i = numPlayer-1; 0; -1 {
+		if playerIndex($i),ID = ID {break;}
+		if playerIndex($i),runOrder > runOrder && !playerIndex($i),isHelper(1211920) {
+			helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1; redirectid: root,ID;}
+			destroySelf{}
+		}
 	}
 }
 
-if ID = playerIndex(0),ID && numHelper(1211920) = 0 {
-	helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1;}
-	assertSpecial{flag: RunLast; redirectid: lastPlayerID;}
-}
+if ID = playerIndex(0),ID && numHelper(1211920) = 0 {helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1;}}
 
 }
 
 [StateDef +1]
 ignoreHitPause {
 
-if isHelper(1211920) && root,ID = playerIndex(0),ID && !sysVar(4444) {
+if isHelper(1211920) && root,ID = playerIndex(0),ID {
 	for i = 0; numPlayer - 1; 1 {
 		let charID = playerIndex($i),ID; # Store this in a local variable so we don't have to go through the redirect every time we need the ID.
 		if playerIndex($i),isAsserted(playerpush) {
