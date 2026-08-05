@@ -713,6 +713,100 @@ if stateType = A {
 	changeState{value: 11; ctrl: 1;}
 }
 
+#-------------------------------------------------------------------------------
+# Downed get-hit (hit ground from fall)
+[StateDef 5100; type: L; movetype: H; physics: N; anim: 5100;]
+
+if time = 0 {
+	fallEnvShake{}
+	forceFeedback{waveform: sinesquare; ampl: 128,-3,-.2,.005; time: 20}
+	hitFallDamage{}
+	posSet{y: 0}
+	velSet{y: 0}
+	velMul{x: .75}
+	playSnd{value: S52,1; volumescale: 200;}
+	explod{id: 15100; anim: 15100; pos: 0,0; postype: P1; sprpriority: 0; bindtime: 0; facing: 1; removetime: -2; supermovetime: -1; pausemovetime: -1; ownpal: 1; xangle: -80; shader: "trans_rights"; shadertime: -1;}
+} else if animTime = 0 {
+	changeState{value: 5101}
+}
+posFreeze{}
+
+#-------------------------------------------------------------------------------
+# Downed get-hit (bounce off ground)
+[StateDef 5101; type: L; movetype: H; physics: N; anim: 5160;]
+
+if time = 0 {
+	hitFallVel{}
+}
+
+if vel y = 0 && pos y = 0 {
+	changeState{value: 5110}
+}
+if time > 0 {
+	velAdd{y: const(movement.down.bounce.yAccel)}
+	if vel Y + pos Y >= 0 {
+		velSet{y: 0;}
+		posSet{y: 0;}
+	}
+}
+
+#-------------------------------------------------------------------------------
+# Downed get-hit (lying down)
+[StateDef 5110; type: L; movetype: H; physics: N; anim: 5170;]
+
+if time = 0 {
+	posSet{y: 0}
+	velSet{x: 0; y: 0}
+} else if !animTime {
+	if !alive {changeState{value: 5150}}
+	changeAnim{value: 5110}
+}
+
+#-------------------------------------------------------------------------------
+# Downed get-hit (getting up)
+[StateDef 5120; type: L; movetype: I; physics: N; anim: 5120;]
+
+if !time && (command = "holdx" || command = "holda" || command = "holdb" || command = "holdc") && (command = "holdleft" || command = "holdright") {
+	changeState{value: 5121;}
+}
+
+notHitBy{value: ,AT; time: 10}
+if animElem = 4 && p2Dist X < 0 {
+	turn{}
+} else if animElem = 5 {
+	ctrlSet{value: 1}
+} else if animTime = 0 {
+	changeState{value: 0; ctrl: 1}
+}
+
+#-------------------------------------------------------------------------------
+# Moving getting up
+[StateDef 5121; type: L; movetype: I; physics: N; anim: 5121;]
+
+if !time {
+	if command = "holdfwd" {
+		velSet{x: 7.5;}
+	} else {
+		velSet{x: -7.5;}
+	}
+}
+
+if animElemTime(3) < 0 {
+	posFreeze{}
+} else if animElemTime(11) < 0 {
+	playerPush{value: 0;}
+}
+
+notHitBy{value: ,AT; time: 10}
+if animElem = 11 {
+	if p2Dist X < 0 {turn{}}
+	velSet{x: 0;}
+} else if animElem = 12 {
+	ctrlSet{value: 1}
+} else if animTime = 0 {
+	changeState{value: 0; ctrl: 1}
+}
+
 #===============================================================================
 # Electron
 #===============================================================================
@@ -759,7 +853,6 @@ overrideClsn{group: size; rect: 0,0,0,0;}
 if shader != "trans_rights" {
 	shaderSet{shader: "trans_rights"; time: -1;}
 }
-
 
 let trailPosX = pos X;
 let trailPosY = pos Y;

@@ -1,10 +1,10 @@
 [Data]
 life = 1000
-power = 5000
+power = 2500
 attack = 100
 defence = 100
 fall.defence_up = 50
-liedown.time = 0
+liedown.time = 23
 airjuggle = 15
 sparkno = -1
 guard.sparkno = -1
@@ -54,7 +54,13 @@ crouch.friction = .83
 down.bounce.yaccel = 1
 down.bounce.offset = 0,0
 down.bounce.groundlevel = 0
+air.gethit.groundlevel = 0
+air.gethit.trip.groundlevel = 0
 
 [Constants]
 
 Zenith.Clash = 1
+Default.LifeToGuardPointsMul = 0
+Super.LifeToGuardPointsMul = 0
+Default.GetHit.LifeToPowerMul = 0
+Super.GetHit.LifeToPowerMul = 0

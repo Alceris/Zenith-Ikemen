@@ -4,9 +4,10 @@ map(CanActionCancel) := 0;
 map(CanMotionCancel) := 0;
 map(CanGuard) := 0;
 
-[Function ComboFactors(Proration, LimitGain)]
+[Function HitFactors(Proration, LimitGain, Friction)]
 map(Proration) := $Proration;
 map(LimitGain) := $LimitGain;
+map(SokuHitFriction) := $Friction;
 
 [StateDef 200;
 type: S;
@@ -15,14 +16,14 @@ physics: N;
 velset: 0,0;
 ctrl: 0;
 anim: 200;
-sprpriority: 2;]
+sprpriority: 1;]
 
 if vel X > 0 {
 	velAdd{x: ifElse(vel X < .375,-vel X,-.375);}
 }
 
 if animElem = 2 {
-	call ComboFactors(0.9, 0);
+	call HitFactors(0.9, 0, 1.5);
 	map(SokuHitType) := 0;
 	map(ZenithNoClash) := 1;
 	playSnd{value: S2,1;}
@@ -55,6 +56,7 @@ if animElem = 2 {
 	yaccel: 0.25;
 	stand.friction: 1;
 	crouch.friction: 1;
+	getpower: 120,80;
 	ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0;}
 
 } else if animElem = 3 {
@@ -78,7 +80,7 @@ physics: N;
 velset: 7.5,0;
 ctrl: 0;
 anim: 310;
-sprpriority: 2;]
+sprpriority: 1;]
 
 if !time {
 	sysFVar(35) := 0;
@@ -144,7 +146,7 @@ if animElemTime(5) = [2,5] {
 	shader: "trans_rights";
 	shadertime: -1;
 	ignorehitpause: 0;}
-	call ComboFactors(0.9, 40);
+	call HitFactors(0.9, 40, 0);
 	map(ZenithNoClash) := 1;
 	map(SokuHitType) := 2;
 	playSnd{value: S310,0;}
@@ -177,6 +179,7 @@ if animElemTime(5) = [2,5] {
 	yaccel: 0.4;
 	stand.friction: 1;
 	crouch.friction: 1;
+	getpower: 120,80;
 	ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0;}
 
 } else if animElem = 6 {
@@ -217,7 +220,7 @@ physics: N;
 velset: 0,0;
 ctrl: 0;
 anim: 410;
-sprpriority: 2;]
+sprpriority: 1;]
 
 if vel X > 0 {
 	velSet{x: max(0,vel X-1);}
@@ -225,7 +228,7 @@ if vel X > 0 {
 
 if animElem = 4 {
 	velSet{x: 4;}
-	call ComboFactors(0.8, 40);
+	call HitFactors(0.8, 40, 0);
 	map(SokuHitType) := 0;
 	map(ZenithNoClash) := 1;
 	playSnd{value: S2,2;}
@@ -256,6 +259,7 @@ if animElem = 4 {
 	yaccel: 0.25;
 	stand.friction: 1;
 	crouch.friction: 1;
+	getpower: 120,80;
 	ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0;}
 
 } else if animElem = 6 {
@@ -272,13 +276,272 @@ if moveContact = 1 {
 	map(SokuGuardCornerPushDecel) := 0.225;
 }
 
+[StateDef 500;
+type: U;
+movetype: A;
+physics: N;
+ctrl: 0;
+anim: 500;
+sprpriority: 1;]
+
+if stateType = C {
+	stateTypeSet{statetype: S;}
+}
+
+if !time {
+	sysfvar(35) := 0;
+	if stateType = A {
+		velMul{x: .2; y: .2;}
+	} else {
+		velSet{x: 0; y: 0;}
+	}
+}
+
+if stateType = A && pos Y >= 0 && vel Y = 0 {
+	changeState{value: 514; ctrl: 0;}
+}
+
+if animElem = 15 && stateType = A {
+	sysfvar(35) := .25;
+}
+
+velAdd{y: sysfvar(35);}
+
+if vel Y + pos Y >= 0 {
+	posSet{y: 0;}
+	velSet{y: 0;}
+}
+
+if animElem = 2 {
+	helper{id: 10500; stateno: 10500; pos: 26,-93; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; inheritchannels: 1;}
+} else if animElem = 8 {
+	stateTypeSet{movetype: I;}
+	map(CanActionCancel) := 1;
+} else if animElem = 11 {map(CanMotionCancel) := 1;}
+
+if !animTime {
+	if stateType = A {
+		changeAnim{value: 44; elem: 7;}
+		changeState{value: 50; ctrl: 1;}
+	} else {
+		changeState{value: 0; ctrl: 1;}
+	}
+}
+
+[StateDef 501;
+type: A;
+movetype: A;
+physics: N;
+anim: 503;
+poweradd: 0;
+ctrl: 0;
+sprpriority: 3;]
+
+ignoreHitPause {
+
+if moveHitVar(frame) && (!map(ZenithClashNonCompat) || hasHit(enemyNear,ID)) {
+	if moveHit {
+		playSnd{value: S0,2; volumescale: 100; channel: 2;}
+	}
+	if moveGuarded {
+		playSnd{value: S1,0; volumescale: 100; channel: 2;}
+	}
+}
+
+notHitBy{value: SCA,AA,AP,AT; time: -1;}
+
+if shader != "trans_rights" {
+	shaderSet{shader: "trans_rights"; time: -1;}
+}
+
+overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
+
+}
+
+if !time {
+	call HitFactors(0.93, 5, 0.75);
+	let bulletangle = rad(map(bulletangle));
+	velSet{x: 8.75*cos($bulletangle); y: -8.75*sin($bulletangle);}
+	fVar(0) := .23;
+} else if fVar(0) < 1 {
+	fVar(0) := fVar(0)+.125;
+} else {
+	fVar(0) := min(fVar(0)+.025, 2);
+}
+
+if random%4 = 0 {
+	let escale = randomrange(50,2250)/1000.0;
+	let eangle = randomRange(-18000,18000)*pi/18000.0;
+	let espeed = randomrange(400,1000)*0.004;
+	explod{anim: 504; ID: 504; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; vel: $espeed*sin($eangle),$espeed*cos($eangle); friction: 0.92,0.92,$escale; removetime: 25; pausemovetime: 0; scale: const(size.xscale),const(size.yscale); trans: add; alpha: 256,256; interpolation.time: 25; interpolation.alpha: 0,256; sprpriority: sprPriority+(random%2); ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; removeongethit: 0; ignorehitpause: 1;}
+}
+
+ignoreHitPause {
+
+if map(ZenithClashPoints) <= 0 || (moveHitVar(frame) && (!map(ZenithClashNonCompat) || hasHit(enemyNear,ID))) || frontEdgeDist <= -200 || (root,movetype = H && !root,getHitVar(guarded)) || root,inCustomState {
+	changeState{value: 502;}
+}
+
+angleDraw{value: map(bulletangle); scale: fVar(0),fVar(0);}
+transformClsn{scale: fVar(0),fVar(0); angle: map(bulletangle);}
+
+if map(ZenithClashesHiPrio) > 0 {
+	map(ZenithClashPoints) := 0;
+} else if map(ZenithClashesEqPrio) > 0 {
+	mapAdd{map: "ZenithClashPoints"; value: -map(ZenithClashesEqPrio);}
+	if !var(1) {
+		var(1) := 1;
+	}
+}
+
+for i = 0; numExplod(504)-1; 1 {
+	let escale = explodVar(504, $i, friction Z);
+	modifyExplod{id: 504; index: $i; scale: $escale,$escale; friction: 0.92,0.92,$escale*0.92;}
+}
+
+hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: Medium; priority: 3,Hit; damage: 20,0; getpower: 16,16; pausetime: 0,5; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 17; ground.hittime: 17; air.hittime: 20; guard.ctrltime: 15; yaccel: 0.25; ground.velocity: -7.5; guard.velocity: -5; air.velocity: -3,-6; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; air.fall: 1; fall.recover: 1; fall.recovertime: 30; fall.damage: 0; down.bounce: 1; id: 500; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+
+}
+
+[StateDef 502;
+type: A;
+movetype: A;
+physics: N;
+poweradd: 0;
+ctrl: 0;
+sprpriority: 3;]
+
+if time = 25 {
+	destroySelf{removeexplods: 1;}
+}
+
+ignoreHitPause {
+
+for i = 0; numExplod(504)-1; 1 {
+	let escale = explodVar(504, $i, friction Z);
+	modifyExplod{id: 504; index: $i; scale: $escale,$escale; friction: 0.92,0.92,$escale*0.92;}
+}
+
+notHitBy{value: SCA,AA,AP,AT; time: -1;}
+
+if shader != "trans_rights" {
+	shaderSet{shader: "trans_rights"; time: -1;}
+}
+
+overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
+
+}
+
+if !time {
+	playSnd{value: S500,1; volumescale: 200; channel: 6;}
+} else if fVar(0) < 1 {
+	fVar(0) := fVar(0)+.125;
+} else {
+	fVar(0) := min(fVar(0)+.025, 2);
+}
+
+fVar(0) := fVar(0)-.095;
+velMul{x: 0.98; y: 0.98;}
+
+ignoreHitPause {
+
+trans{trans: add; alpha: 256*((1-((time+1)/26.0))**2),256}
+angleDraw{value: map(bulletangle); scale: fVar(0),fVar(0);}
+
+}
+[StateDef 10500; type: S; movetype: I; physics: N; anim: 10500; ctrl: 0; sprpriority: 2;]
+
+if !numExplod(10500) {
+	explod{id: 10500; anim: 501; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: -1; removetime: -1; supermovetime: 0; pausemovetime: 0; ownpal: 1; shader: "trans_rights"; shadertime: -1; reflection: 1;}
+}
+
+if root,inCustomState || root,stateNo != 500 {
+	changeState{value: 10502;}
+}
+
+assertSpecial{flag: RunLast; flag2: AnimFreeze;}
+notHitBy{attr: SCA,AA,AP,AT; time: -1;}
+overrideClsn{group: size; rect: 0,0,0,0;}
+
+changeAnim{value: 10500; elem: root,animElemNo(-(root,hitPauseTime != 0 && !root,isAsserted(AnimateHitPause)));}
+
+if animElemTime(8) < 0 {
+	let trailPosX = pos X;
+	let trailPosY = pos Y;
+	posAdd{x: (root,pos X+((animElemVar(XOffset)+root,animElemVar(XOffset))*root,facing)-pos X)*facing*1.5; y: (root,pos Y+animElemVar(YOffset)+root,animElemVar(YOffset)-pos Y)*1.5;}
+	let trailPosX = ($trailPosX-pos X)*facing;
+	let trailPosY = ($trailPosY-pos Y);
+	let trailScale = (($trailPosX**2)+($trailPosY**2))**0.5;
+	explod{id: 10991; anim: 10991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: 0; removetime: 10; scale: 20.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 10; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
+} else {
+	removeExplod{id: 10500;}
+	changeState{value: 10501;}
+}
+
+[StateDef 10501; type: S; movetype: I; physics: N; ctrl: 0;]
+
+if !numExplod(10500) {
+	explod{id: 10500; anim: 502; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: -1; removetime: -1; supermovetime: 0; pausemovetime: 0; ownpal: 1; shader: "trans_rights"; shadertime: -1;}
+}
+
+if root,inCustomState || (root,stateNo != 500 && root,stateNo != 505) {
+	changeState{value: 10502;}
+}
+
+assertSpecial{flag: RunLast; flag2: AnimFreeze;}
+notHitBy{attr: SCA,AA,AP,AT; time: -1;}
+overrideClsn{group: size; rect: 0,0,0,0;}
+
+changeAnim{value: 10500; elem: root,animElemNo(-(root,hitPauseTime != 0 && !root,isAsserted(AnimateHitPause)));}
+
+if !time {
+	var(0) := 20;
+} else if time = 10 {
+	changeState{value: 10502;}
+} else if time%2 {
+	playSnd{value: S500,0; volumescale: 200; channel: 5;}
+	helper{id: 500; stateno: 501; pos: pos X+camerapos X,pos Y+groundlevel; postype: none; facing: facing; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1; inheritchannels: 1; map.bulletangle: var(0); redirectid: root,id;}
+	var(0) := var(0)-10;
+}
+
+let trailPosX = pos X;
+let trailPosY = pos Y;
+
+posAdd{x: (root,pos X+((animElemVar(XOffset)+root,animElemVar(XOffset))*root,facing)-pos X)*facing*0.75; y: (root,pos Y+animElemVar(YOffset)+root,animElemVar(YOffset)-pos Y)*0.75;}
+
+let trailPosX = ($trailPosX-pos X)*facing;
+let trailPosY = ($trailPosY-pos Y);
+let trailScale = (($trailPosX**2)+($trailPosY**2))**0.5;
+explod{id: 10991; anim: 10991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: 0; removetime: 10; scale: 20.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 10; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
+
+[StateDef 10502; type: S; movetype: I; physics: N; ctrl: 0;]
+
+if !numExplod(10500) {
+	destroySelf{}
+}
+
+if !time {
+	fVar(0) := 1;
+} else if time = 12 {
+	destroySelf{removeexplods: 1;}
+}
+
+fVar(0) := fVar(0)*0.9;
+let scaledtime = 256*((1-((time+1)/14.0))**2);
+
+if explodVar(10500, 0, anim) = 502 && explodVar(10500, 0, animelem) = 2 {
+	modifyExplod{id: 10500; scale: fVar(0),fVar(0); trans: sub; alpha: $scaledtime,256;}
+} else {
+	modifyExplod{id: 10500; scale: fVar(0),fVar(0); trans: add; alpha: $scaledtime,256;}
+}
+
 [StateDef 510;
 type: U;
 movetype: A;
 physics: N;
 ctrl: 0;
-anim: 510;
-sprpriority: 2;]
+anim: cond(stateType = A,710,510);
+sprpriority: 1;]
 
 if stateType = C {
 	stateTypeSet{statetype: S;}
@@ -313,8 +576,8 @@ if animElem = 6 {
 } else if animElem = 7 {
 	map(CanActionCancel) := 1;
 	playSnd{value: S510,0; volumescale: 200;}
-	helper{id: 510; stateno: 513; pos: 13,-68.5+animElemVar(YOffset); postype: p1; facing: 1; ownpal: 1;}
-	helper{id: 511; stateno: 511; pos: 10,-68.5+animElemVar(YOffset); postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 6; inheritchannels: 1;}
+	helper{id: 510; stateno: 513; pos: cond(stateType = A,15,13),cond(stateType = A,-75,-68.5); postype: p1; facing: 1; ownpal: 1;}
+	helper{id: 511; stateno: 511; pos: cond(stateType = A,15,10),cond(stateType = A,-75,-68.5); postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 6; inheritchannels: 1;}
 }else if animElem = 9 {map(CanMotionCancel) := 1;}
 
 if !animTime {
@@ -358,7 +621,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 }
 
 if !time {
-	call ComboFactors(0.93, 10);
+	call HitFactors(0.93, 10, 0);
 	explod{anim: 515; ID: 515; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); sprpriority: 3; shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: sub; alpha: 200,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1; syncid: id; synclayer: 1; syncparams: 0;}
 }
 
@@ -430,7 +693,7 @@ if numExplod(514) > 0 {
 modifyExplod{ID: 515; trans: sub; alpha: 200+ceil(56*sin(pi*explodvar(515,0,time)/14.0)),256; sprpriority: sprPriority;}
 
 if !moveContact {
-	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: 4,Hit; damage: 40,0; pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; yaccel: 0.25; ground.velocity: -6.25,-7.5; guard.velocity: -6.5; air.velocity: -6.25,-7.5; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; fall: 1; fall.yvelocity: 0; fall.recover: 1; fall.recovertime: 45; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: 4,Hit; damage: 40,0; getpower: 30,30; pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; yaccel: 0.25; ground.velocity: -6.25,-7.5; guard.velocity: -6.5; air.velocity: -6.25,-7.5; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; fall: 1; fall.recover: 1; fall.recovertime: 45; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 }
 
 }
@@ -517,7 +780,7 @@ movetype: A;
 physics: N;
 ctrl: 0;
 anim: 520;
-sprpriority: 2;]
+sprpriority: 1;]
 
 if stateType = C {
 	stateTypeSet{statetype: S;}
@@ -583,7 +846,7 @@ let beamEndY = 0.0;
 ignoreHitPause {
 
 if !time {
-	call ComboFactors(0.98, 4);
+	call HitFactors(0.98, 4, 0);
 	explod{anim: 521; ID: 521; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: add; alpha: 256,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1; syncid: id; synclayer: 1; syncparams: 0;}
 	explod{anim: 523; ID: 523; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: add; alpha: 256,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1; syncid: id; synclayer: 1; syncparams: 0;}
 }
@@ -657,7 +920,7 @@ ignoreHitPause for i = 0; numExplod(524) - 1; 1 {
 }
 
 if !moveContact {
-	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: 4,Hit; damage: 15,0; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.25; ground.velocity: -9,-4; guard.velocity: -6.5; air.velocity: -9,-4; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; fall: 1; fall.yvelocity: 0; fall.recover: 1; fall.recovertime: 50; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: 4,Hit; damage: 15,0; getpower: 10,10; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.25; ground.velocity: -9,-4; guard.velocity: -6.5; air.velocity: -9,-4; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; fall: 1; fall.recover: 1; fall.recovertime: 50; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 }
 
 [StateDef 522;
@@ -711,7 +974,7 @@ physics: N;
 ctrl: 0;
 velset: 0,0;
 anim: 525;
-sprpriority: 2;]
+sprpriority: 1;]
 
 if animElem = 16 {
 	stateTypeSet{movetype: I;}
@@ -731,7 +994,7 @@ movetype: A;
 physics: N;
 ctrl: 0;
 anim: 725;
-sprpriority: 2;]
+sprpriority: 1;]
 
 if !time {
 	sysfvar(35) := 0;
