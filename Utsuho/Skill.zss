@@ -4,11 +4,12 @@ map(CanActionCancel) := 0;
 map(CanMotionCancel) := 0;
 map(CanGuard) := 0;
 
-[Function HitFactors(Proration, LimitGain, Friction, Effect)]
+[Function HitFactors(Proration, LimitGain, Friction, Effect, ComboModifiers)]
 map(Proration) := $Proration;
 map(LimitGain) := $LimitGain;
 map(SokuHitFriction) := $Friction;
 map(SokuHitEffect) := $Effect;
+map(SokuComboModifiers) := $ComboModifiers; # 1 = Lift Attack, 2 = Smash Attack, 3 = Both
 
 [StateDef 1100;
 type: S;
@@ -64,7 +65,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 if !time {
 	map(SokuHitType) := 1;
 	shaderSet{shader: "trans_rights"; time: -1;}
-	call HitFactors(0.95, 10, 0, 3);
+	call HitFactors(0.95, 10, 0, 3, 1);
 	fVar(0) := 8.25;
 	fVar(1) := 0.15;
 }
@@ -200,7 +201,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 if !time {
 	map(SokuHitType) := 1;
 	shaderSet{shader: "trans_rights"; time: -1;}
-	call HitFactors(0.95, 10, 0, 3);
+	call HitFactors(0.95, 10, 0, 3, 1);
 	fVar(0) := 6.25;
 	fVar(1) := 0.23;
 }
@@ -289,7 +290,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 if !time {
 	map(SokuHitType) := 1;
 	shaderSet{shader: "trans_rights"; time: -1;}
-	call HitFactors(0.96, 2, 0, 3);
+	call HitFactors(0.96, 2, 0, 3, 1);
 }
 
 if map(ZenithClashesHiPrio) > 0 {

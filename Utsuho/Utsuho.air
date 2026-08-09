@@ -1421,7 +1421,7 @@ Clsn2: 2
 -1,7, 2,-41, 7
 -1,8, 9.5,-45, 6
 
-[Begin Action 10610]
+[Begin Action 100610]
 10610,0, 0,0, 1
 10610,1, 0,0, 1
 -1,0, 0,0, 2
@@ -2900,6 +2900,12 @@ Clsn2[0] = -12.5,-99,19,-69.5
 Clsn2[1] = -19.5,-77,19,-35.5
 Clsn2[2] = -15.5,-43,23,-8
 5030,0, 0,0, 2
+
+; Electron
+[Begin Action 130360]
+-1,0, 16.5,-31.5, 2
+
+[Begin Action 5041]
 Clsn2: 2
 Clsn2[0] = -3.5,-80,23,-51.5
 Clsn2[1] = -21,-71,19,-10
@@ -2910,8 +2916,7 @@ Clsn2[1] = -21,-70,19,-9
 5010,10, 0,-6, 4
 
 ; Electron
-[Begin Action 130360]
--1,0, 16.5,-31.5, 2
+[Begin Action 130361]
 -1,0, 17.5,-41.5, 12
 -1,0, 18.5,-42.5, 4
 
@@ -2987,8 +2992,104 @@ LoopStart
 [Begin Action 5150]
 Copy Action 5110
 
+; Air Recovery Forward
+[Begin Action 5200]
+Clsn2Default: 3
+Clsn2[0] = 4,-96,29,-68
+Clsn2[1] = -10.5,-74.5,24.5,-23.5
+Clsn2[2] = -19,-42.5,4.5,-14
+40,14, 0,0, 5
+40,15, 0,0, 5
+40,14, 0,0, 5
+40,15, 0,0, 5
+Clsn2: 2
+Clsn2[0] = -16.5,-101.5,12.5,-21.5
+Clsn2[1] = -7,-60,19,-32.5
+40,16, 0,0, 5
+Clsn2: 2
+Clsn2[0] = -17,-101.5,12,-36.5
+Clsn2[1] = 8.5,-66.5,25.5,-40.5
+40,4, 0,0, 5
+Clsn2: 2
+Clsn2[0] = -18,-100.5,11,-35.5
+Clsn2[1] = 9.5,-67.5,26.5,-41.5
+40,5, 0,0, 12
+Clsn2: 2
+Clsn2[0] = -17,-101.5,12,-36.5
+Clsn2[1] = 8.5,-66.5,25.5,-40.5
+40,6, 0,0, 5
+Clsn2: 2
+Clsn2[0] = -14.5,-102.5,16.5,-27.5
+Clsn2[1] = 3.5,-78,24,-36.5
+40,7, 0,0, 5
+Clsn2: 2
+Clsn2[0] = -14.5,-102.5,15.5,-22.5
+Clsn2[1] = -7,-71.5,18,-11.5
+40,8, 0,0, 5
+
+; Electron
+[Begin Action 130520]
+-1,0, 12,-33.5, 5
+-1,0, 12,-33.5, 5
+-1,0, 12,-33.5, 5
+-1,0, 12,-33.5, 5
+-1,0, 11,-38.5, 5
+-1,0, 14,-44, 5
+-1,0, 15,-45, 12
+-1,0, 14,-44, 5
+-1,0, 13.5,-42.5, 5
+-1,0, 8,-45, 5
+
+; Air Recovery Backward
+[Begin Action 5201]
+Clsn2Default: 3
+Clsn2[0] = -21,-97,7,-70
+Clsn2[1] = -18.5,-75,19.5,-28
+Clsn2[2] = -5,-43,22,-7.5
+40,11, 0,0, 5
+40,12, 0,0, 5
+40,11, 0,0, 5
+40,12, 0,0, 5
+Clsn2: 2
+Clsn2[0] = -16.5,-101.5,12.5,-21.5
+Clsn2[1] = -7,-60,19,-32.5
+40,13, 0,0, 5
+Clsn2: 2
+Clsn2[0] = -17,-101.5,12,-36.5
+Clsn2[1] = 8.5,-66.5,25.5,-40.5
+40,4, 0,0, 5
+Clsn2: 2
+Clsn2[0] = -18,-100.5,11,-35.5
+Clsn2[1] = 9.5,-67.5,26.5,-41.5
+40,5, 0,0, 12
+Clsn2: 2
+Clsn2[0] = -17,-101.5,12,-36.5
+Clsn2[1] = 8.5,-66.5,25.5,-40.5
+40,6, 0,0, 5
+Clsn2: 2
+Clsn2[0] = -14.5,-102.5,16.5,-27.5
+Clsn2[1] = 3.5,-78,24,-36.5
+40,7, 0,0, 5
+Clsn2: 2
+Clsn2[0] = -14.5,-102.5,15.5,-22.5
+Clsn2[1] = -7,-71.5,18,-11.5
+40,8, 0,0, 5
+
+; Electron
+[Begin Action 130521]
+-1,0, 11.5,-38.5, 5
+-1,0, 11.5,-38.5, 5
+-1,0, 11.5,-38.5, 5
+-1,0, 11.5,-38.5, 5
+-1,0, 14.5,-41.5, 5
+-1,0, 14,-44, 5
+-1,0, 15,-45, 12
+-1,0, 14,-44, 5
+-1,0, 13.5,-42.5, 5
+-1,0, 8,-45, 5
+
 ; Light Hit
-[Begin Action 10000]
+[Begin Action 100000]
 10000,0, 0,0, 1, , A
 10000,1, 0,0, 1, , A
 10000,2, 0,0, 1, , A
@@ -2999,7 +3100,7 @@ Copy Action 5110
 10000,7, 0,0, 1, , A
 
 ; Medium Hit
-[Begin Action 10001]
+[Begin Action 100001]
 10001,0, 0,0, 1, , A, 0.75,0.75
 10001,1, 0,0, 1, , A, 0.75,0.75
 10001,2, 0,0, 1, , A, 0.75,0.75
@@ -3014,7 +3115,7 @@ Copy Action 5110
 10001,11, 0,0, 1, , A, 0.75,0.75
 
 ; Heavy Hit
-[Begin Action 10002]
+[Begin Action 100002]
 10002,0, 0,0, 1, , A
 10002,1, 0,0, 1, , A
 10002,2, 0,0, 1, , A
@@ -3029,7 +3130,7 @@ Copy Action 5110
 10002,11, 0,0, 1, , A
 
 ; Very Heavy Hit
-[Begin Action 10003]
+[Begin Action 100003]
 10002,0, 0,0, 1, , A, 1.5,1.5
 10002,1, 0,0, 1, , A, 1.5,1.5
 10002,2, 0,0, 1, , A, 1.5,1.5
@@ -3044,7 +3145,7 @@ Copy Action 5110
 10002,11, 0,0, 1, , A, 1.5,1.5
 
 ; Medium Blue Energy Hit
-[Begin Action 10012]
+[Begin Action 100012]
 10012,0, 0,0, 1, , A
 10012,1, 0,0, 1, , A
 10012,2, 0,0, 1, , A
@@ -3066,85 +3167,92 @@ Copy Action 5110
 10012,18, 0,0, 1, , A
 
 ; Hit Particle
-[Begin Action 10050]
+[Begin Action 100050]
 10050,0, 0,0, 10, , A, 0.5,0.5
 Interpolate Blend
 Interpolate Scale
 10050,0, 0,0, 1, , AS23D256, 0.0454545,0.0454545
 
 ; Hit Particle
-[Begin Action 10051]
+[Begin Action 100051]
 10050,1, 0,0, 24, , A, 0.5,0.5
 Interpolate Scale
 Interpolate Blend
 10050,1, 0,0, 1, , AS10D256, 0.5,0.25
 
 ; Hit Particle
-[Begin Action 10052]
+[Begin Action 100052]
 10050,2, 0,0, 24, , A, 0.5,0.5
 Interpolate Scale
 Interpolate Blend
 10050,2, 0,0, 1, , AS10D256, 0.5,0.25
 
 ; Heavy Hit Ring
-[Begin Action 10053]
+[Begin Action 100053]
 10050,3, 0,0, 11, , A, 0.375,0.375
 Interpolate Scale
 Interpolate Blend
 10050,3, 0,0, 1, , AS21D256, 1.75,1.75
 
 ; Very Heavy Hit Ring
-[Begin Action 10054]
+[Begin Action 100054]
 10050,3, 0,0, 11, , A, 0.5576,0.5576
 Interpolate Scale
 Interpolate Blend
 10050,3, 0,0, 1, , AS21D256, 4,4
 
 ; Medium Blue Energy Hit Ring
-[Begin Action 10062]
+[Begin Action 100062]
 10050,4, 0,0, 15, , A, 0.3,0.3
 Interpolate Scale
 Interpolate Blend
 10050,4, 0,0, 1, , AS16D256, 0.86,0.86
 
 ; Charge Effect
-[Begin Action 10700]
+[Begin Action 100700]
 15200,0, 0,0, 15, , A, 0.15,0.15
 Interpolate Scale
 Interpolate Blend
-15200,0, 0,0, 1, , AS16D256
+15200,0, 0,0, 1, , AS16D256, 1,1
 
 ; Charge Effect
-[Begin Action 10701]
+[Begin Action 100701]
 10041,11, 0,0, 10, , A, 0.15,0.15
 Interpolate Scale
 Interpolate Blend
 10041,11, 0,0, 1, , AS23D256
 
 ; Electron
-[Begin Action 10990]
+[Begin Action 100990]
 501,0, 0,0, 2, , A, 0.1,0.1
 501,0, 0,0, 2, , A, 0.125,0.125
 
 ; Electron Trail
-[Begin Action 10991]
+[Begin Action 100991]
 10990,0, 0.5,0, -1, , A
 
 
 ; Hit ground effect
-[Begin Action 15100]
+[Begin Action 105100]
 15100,0, 0,0, 11, , A, 0.7,0.7
 Interpolate Scale
 Interpolate Blend
 15100,0, 0,0, 1, , AS19D256, 3,3
 
+; Recovery Effect
+[Begin Action 105200]
+15200,0, 0,0, 11, , A, 0.65,0.65
+Interpolate Scale
+Interpolate Blend
+15200,0, 0,0, 1, , AS21D256, 2.3,2.3
+
 ; Combo Limit
-[Begin Action 15400]
+[Begin Action 105400]
 15400,0, 0,0, 359, , A, 0.5,0.5
 Interpolate Angle
 15400,0, 0,0, 1, , A, 0.5,0.5, 359
 
-[Begin Action 15401]
+[Begin Action 105401]
 15400,1, 0,0, 359, , A, 0.5,0.5
 Interpolate Angle
 15400,1, 0,0, 1, , A, 0.5,0.5, -359

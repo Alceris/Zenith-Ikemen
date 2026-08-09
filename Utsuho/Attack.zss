@@ -4,16 +4,17 @@ map(CanActionCancel) := 0;
 map(CanMotionCancel) := 0;
 map(CanGuard) := 0;
 
-[Function HitFactors(Proration, LimitGain, Friction, Effect)]
+[Function HitFactors(Proration, LimitGain, Friction, Effect, ComboModifiers)]
 map(Proration) := $Proration;
 map(LimitGain) := $LimitGain;
 map(SokuHitFriction) := $Friction;
 map(SokuHitEffect) := $Effect;
+map(SokuComboModifiers) := $ComboModifiers; # 1 = Lift Attack, 2 = Smash Attack, 3 = Both
 
 [Function ChargeEffect(X, Y)]
 playSnd{value: S3,3; volumescale: 200;}
-explod{id: 10700; anim: 10700; pos: $X,$Y; postype: P1; sprpriority: 3; bindtime: 0; removetime: -2; scale: 1,1; supermovetime: -1; pausemovetime: -1; ownpal: 1; shader: "trans_rights"; shadertime: -1; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 16; interpolation.palfx.mul: 0,0,256; ignorehitpause: 1;}
-explod{id: 10700; anim: 10701; pos: $X,$Y; postype: P1; sprpriority: 3; bindtime: 0; removetime: -2; scale: 1,1; supermovetime: -1; pausemovetime: -1; ownpal: 1; shader: "trans_rights"; shadertime: -1; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 11; interpolation.palfx.mul: 0,0,256; ignorehitpause: 1;}
+explod{id: 100700; anim: 100700; pos: $X,$Y; postype: P1; sprpriority: 3; bindtime: 0; removetime: -2; scale: 1,1; supermovetime: -1; pausemovetime: -1; ownpal: 1; shader: "trans_rights"; shadertime: -1; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 16; interpolation.palfx.mul: 0,0,256; ignorehitpause: 1;}
+explod{id: 100700; anim: 100701; pos: $X,$Y; postype: P1; sprpriority: 3; bindtime: 0; removetime: -2; scale: 1,1; supermovetime: -1; pausemovetime: -1; ownpal: 1; shader: "trans_rights"; shadertime: -1; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 11; interpolation.palfx.mul: 0,0,256; ignorehitpause: 1;}
 
 [StateDef 200;
 type: S;
@@ -36,7 +37,7 @@ if vel X > 0 {
 }
 
 if animElem = 2 {
-	call HitFactors(0.9, 0, 1.5, 3);
+	call HitFactors(0.9, 0, 1.5, 3, 0);
 	map(SokuHitType) := 0;
 	map(ZenithNoClash) := 1;
 	playSnd{value: S2,1;}
@@ -87,6 +88,76 @@ if moveContact = 1 {
 	map(SokuAirCornerPush) := -6*facing;
 }
 
+[StateDef 220;
+type: S;
+movetype: A;
+physics: N;
+ctrl: 0;
+anim: 220;
+sprpriority: 1;]
+
+if !time && prevStateNo != 101 {
+	velSet{x: 0;}
+} else if prevStateNo = 101 && vel X > 0 {
+	velSet{x: max(0, vel X-0.25);}
+}
+
+if animElem = 4 {
+	velSet{x: 7.5;}
+} else if animElem = 5 {
+	velSet{x: 0;}
+	call HitFactors(0.85, 40, 0, 3, 1);
+	map(ZenithNoClash) := 1;
+	map(SokuHitType) := 0;
+	explod{id: 105100; anim: 105100; pos: 28,0; postype: P1; sprpriority: 0; bindtime: 0; facing: 1; removetime: -2; supermovetime: -1; pausemovetime: -1; ownpal: 1; xangle: -80; shader: "trans_rights"; shadertime: -1;}
+	playSnd{value: S220,0;}
+	hitDef{attr: S, NA;
+	damage: 100;
+	hitonce: enemynear,name != "Dragon Tank";
+	animtype: Back;
+	guardflag: L;
+	hitflag: MAFD;
+	priority: 4, Hit;
+	pausetime: 10, 10;
+	sparkno: -1;
+	sparkxy: -10, 0;
+	hitsound: S0, 2;
+	guardsound: S1, 0;
+	ground.type: Low;
+	ground.slidetime: 21;
+	ground.hittime: 21;
+	ground.velocity: -1.25,-8.75;
+	guard.ctrltime: 21;
+	airguard.ctrltime: 19;
+	air.type: Low;
+	air.velocity: -1.25,-8.75;
+	air.hittime: 0;
+	guard.velocity: -6.5;
+	airguard.velocity: -3,-6;
+	fall: 1;
+	fall.recover: 1;
+	fall.xvelocity: -0.625;
+	fall.recovertime: 55;
+	yaccel: 0.65;
+	stand.friction: 1;
+	crouch.friction: 1;
+	getpower: 120,80;
+	ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0;}
+} else if animElem = 6 {
+	stateTypeSet{movetype: I;}
+} else if animTime = 0 {
+	changeState{value: 0; ctrl: 1;}
+}
+
+if moveContact = 1 {
+	map(CanActionCancel) := 1;
+	map(SokuCornerPush) := -8.25*facing;
+	map(SokuCornerPushDecel) := 1.125;
+	map(SokuGuardCornerPush) := -4.65*facing;
+	map(SokuGuardCornerPushDecel) := 0.225;
+	map(SokuAirCornerPush) := -6*facing;
+}
+
 [StateDef 250;
 type: S;
 movetype: A;
@@ -109,7 +180,7 @@ if animElem = 3 {
 	velSet{x: 7.5;}
 } else if animElem = 5 {
 	velSet{x: 4.75;}
-	call HitFactors(0.8, 40, 0, 3);
+	call HitFactors(0.8, 40, 0, 3, 2);
 	map(ZenithNoClash) := 1;
 	map(SokuHitType) := 0;
 	playSnd{value: S310,0;}
@@ -153,8 +224,8 @@ if animElem = 3 {
 
 if moveContact = 1 {
 	map(CanActionCancel) := 1;
-	map(SokuCornerPush) := -6*facing;
-	map(SokuCornerPushDecel) := 1;
+	map(SokuCornerPush) := -8.25*facing;
+	map(SokuCornerPushDecel) := 1.125;
 	map(SokuGuardCornerPush) := -4.65*facing;
 	map(SokuGuardCornerPushDecel) := 0.225;
 	map(SokuAirCornerPush) := -6*facing;
@@ -234,7 +305,7 @@ if animElemTime(5) = [2,5] {
 	shadertime: -1;
 	ignorehitpause: 0;
 	removeonchangestate: 1;}
-	call HitFactors(0.9, 40, 0, 3);
+	call HitFactors(0.9, 40, 0, 3, 2);
 	map(ZenithNoClash) := 1;
 	map(SokuHitType) := 2;
 	playSnd{value: S310,0;}
@@ -319,7 +390,7 @@ if vel X > 0 {
 
 if animElem = 4 {
 	velSet{x: 4;}
-	call HitFactors(0.8, 40, 0, 3);
+	call HitFactors(0.8, 40, 0, 3, 1);
 	map(SokuHitType) := 0;
 	map(ZenithNoClash) := 1;
 	playSnd{value: S2,2;}
@@ -433,7 +504,7 @@ if animElemTime(4) = [2,5] {
 	syncparams: 0;
 	synclayer: 1;
 	removeonchangestate: 1;}
-	call HitFactors(0.92, 0, 1.5, 2);
+	call HitFactors(0.92, 0, 1.5, 2, 0);
 	map(ZenithNoClash) := 1;
 	map(SokuHitType) := 0;
 	playSnd{value: S310,0;}
@@ -517,8 +588,8 @@ if animElem = 3 {
 	velSet{x: 0; y: 0;}
 } else if animElem = 4 {
 	velSet{x: 10;}
-	explod{id: 10610;
-	anim: 10610;
+	explod{id: 100610;
+	anim: 100610;
 	pos: 0,0;
 	postype: P1;
 	sprpriority: 1;
@@ -535,7 +606,7 @@ if animElem = 3 {
 	synclayer: 1;
 	ignorehitpause: 0;
 	removeonchangestate: 1;}
-	call HitFactors(0.85, 40, 0, 3);
+	call HitFactors(0.85, 40, 0, 3, 2);
 	map(ZenithNoClash) := 1;
 	map(SokuHitType) := 2;
 	playSnd{value: S610,0;}
@@ -548,7 +619,7 @@ if animElem = 3 {
 	priority: 4, Hit;
 	pausetime: 10, 10;
 	sparkno: -1;
-	sparkxy: 18, -53;
+	sparkxy: 0, -70;
 	hitsound: S0, 2;
 	guardsound: S1, 0;
 	ground.type: Low;
@@ -575,7 +646,7 @@ if animElem = 3 {
 } else if animElem = 10 {
 	stateTypeSet{movetype: I;}
 } else if animElem = 11 {
-	removeExplod{id: 10610;}
+	removeExplod{id: 100610;}
 	sysfvar(35) := 0.25;
 	velSet{x: 3.125;}
 }
@@ -642,7 +713,7 @@ if vel Y + pos Y >= 0 {
 if animElem = 5 {
 	playSnd{value: S2,2;}
 } else if animElem = 6 {
-	call HitFactors(0.85, 40, 0, 3);
+	call HitFactors(0.85, 40, 0, 3, 2);
 	map(ZenithNoClash) := 1;
 	map(SokuHitType) := 0;
 	hitDef{attr: A, NA;
@@ -727,7 +798,7 @@ if animElem = 3 {
 	sysFVar(35) := 0.3;
 	velSet{y: -6.25;}
 } else if animElem = 4 {
-	call HitFactors(0.85, 40, 1.5, 3);
+	call HitFactors(0.85, 40, 1.5, 3, 1);
 	map(ZenithNoClash) := 1;
 	map(SokuHitType) := 0;
 	hitDef{attr: A, NA;
@@ -755,7 +826,7 @@ if animElem = 3 {
 	airguard.velocity: -3,-6;
 	fall: 1;
 	fall.recover: 1;
-	fall.xvelocity: -3;
+	fall.xvelocity: -2.5;
 	fall.recovertime: 55;
 	yaccel: 0.25;
 	stand.friction: 1;
@@ -928,7 +999,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 }
 
 if !time {
-	call HitFactors(0.93, 5, 0.75, 2);
+	call HitFactors(0.93, 5, 0.75, 2, 0);
 	let bulletangle = rad(map(bulletangle));
 	velSet{x: 8.75*cos($bulletangle); y: -8.75*sin($bulletangle);}
 	fVar(0) := .23;
@@ -969,7 +1040,7 @@ for i = 0; numExplod(504)-1; 1 {
 	modifyExplod{id: 504; index: $i; scale: $escale,$escale; friction: 0.92,0.92,$escale*0.92;}
 }
 
-hitDef{attr: S,NP; hitflag: MAFD; guardflag: MA; animtype: Medium; priority: floor(map(BasePriority))-1,Hit; damage: 20,0; getpower: 16,16; pausetime: 0,5; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 17; ground.hittime: 17; air.hittime: 20; guard.ctrltime: 15; yaccel: 0.25; ground.velocity: -7.5; guard.velocity: -5; air.velocity: -3,-6; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; air.fall: 1; fall.recover: 1; fall.recovertime: 30; fall.damage: 0; down.bounce: 1; id: 500; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+hitDef{attr: S,NP; hitflag: MAFD; guardflag: MA; animtype: Medium; priority: floor(map(BasePriority))-1,Hit; damage: 20,0; getpower: 16,16; pausetime: 0,5; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: Low; ground.slidetime: 17; ground.hittime: 17; air.hittime: 20; guard.ctrltime: 15; yaccel: 0.25; ground.velocity: -7.5; guard.velocity: -5; air.velocity: -3,-6; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; air.fall: 1; fall.recover: 1; fall.recovertime: 30; fall.damage: 0; down.bounce: 1; id: 500; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 
 }
 
@@ -1045,7 +1116,7 @@ if animElemTime(8) < 0 {
 	let trailPosX = ($trailPosX-pos X)*facing;
 	let trailPosY = ($trailPosY-pos Y);
 	let trailScale = (($trailPosX**2)+($trailPosY**2))**0.5;
-	explod{id: 10991; anim: 10991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: 0; removetime: 10; scale: 20.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 10; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
+	explod{id: 100991; anim: 100991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: 0; removetime: 10; scale: 20.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 10; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
 } else {
 	removeExplod{id: 10500;}
 	changeState{value: 10501;}
@@ -1085,7 +1156,7 @@ posAdd{x: (root,pos X+((animElemVar(XOffset)+root,animElemVar(XOffset))*root,fac
 let trailPosX = ($trailPosX-pos X)*facing;
 let trailPosY = ($trailPosY-pos Y);
 let trailScale = (($trailPosX**2)+($trailPosY**2))**0.5;
-explod{id: 10991; anim: 10991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: 0; removetime: 10; scale: 20.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 10; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
+explod{id: 100991; anim: 100991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: 0; removetime: 10; scale: 20.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 10; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
 
 [StateDef 10502; type: S; movetype: I; physics: N; ctrl: 0;]
 
@@ -1187,7 +1258,7 @@ if anim%2 || animElemTime(4) < 0 {
 	let trailPosX = ($trailPosX-pos X)*facing;
 	let trailPosY = ($trailPosY-pos Y);
 	let trailScale = (($trailPosX**2)+($trailPosY**2))**0.5;
-	explod{id: 10991; anim: 10991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: 0; removetime: 10; scale: 20.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 10; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
+	explod{id: 100991; anim: 100991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: 0; removetime: 10; scale: 20.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 10; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
 } else {
 	removeExplod{id: 10500;}
 	changeState{value: 10506;}
@@ -1227,7 +1298,7 @@ posAdd{x: (root,pos X+((animElemVar(XOffset)+root,animElemVar(XOffset))*root,fac
 let trailPosX = ($trailPosX-pos X)*facing;
 let trailPosY = ($trailPosY-pos Y);
 let trailScale = (($trailPosX**2)+($trailPosY**2))**0.5;
-explod{id: 10991; anim: 10991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: 0; removetime: 10; scale: 20.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 10; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
+explod{id: 100991; anim: 100991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; sprpriority: 2; syncparams: 0; bindtime: 0; removetime: 10; scale: 20.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 10; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
 
 [StateDef 511;
 type: A;
@@ -1261,7 +1332,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 }
 
 if !time {
-	call HitFactors(0.93, 10, 0, 3);
+	call HitFactors(0.93, 10, 0, 3, 1);
 	explod{anim: 10510; ID: 10510; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); sprpriority: 3; shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: sub; alpha: 200,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1; syncid: id; synclayer: 1; syncparams: 0;}
 }
 
@@ -1489,7 +1560,7 @@ ignoreHitPause {
 sprPriority{value: 3;}
 
 if !time {
-	call HitFactors(0.98, 4, 0, 13);
+	call HitFactors(0.98, 4, 0, 13, 0);
 	explod{anim: 521; ID: 521; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: add; alpha: 256,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1; syncid: id; synclayer: 1; syncparams: 0;}
 	explod{anim: 523; ID: 523; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: add; alpha: 256,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1; syncid: id; synclayer: 1; syncparams: 0;}
 }
