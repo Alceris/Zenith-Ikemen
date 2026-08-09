@@ -4,6 +4,69 @@ map(CanActionCancel) := 0;
 map(CanMotionCancel) := 0;
 map(CanGuard) := 0;
 
+[Function HitEffect(Effect, charID)]
+let sparkx = playerId($charID),moveHitVar(sparkx);
+let sparky = playerId($charID),moveHitVar(sparky);
+let numbluebeams = 0;
+let numredbeams = 0;
+let numparticles = 0;
+
+explod{id: 9999+floor($Effect); anim: 9999+floor($Effect); facing: 1; pos: $sparkx,$sparky; postype: P1; angle: randomRange(-18000,18000)/100.0; ontop: 1; bindtime: 0; removetime: -2; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; redirectid: $charID;}
+
+switch $Effect {
+	case 1:
+		let numparticles = 3;
+	case 2:
+		let numparticles = 6;
+		let numbluebeams = 3;
+		let numredbeams = 3;
+	case 3:
+		explod{id: 10053; anim: 10053; facing: 1; pos: $sparkx,$sparky; postype: P1; ontop: 1; bindtime: 0; removetime: -2; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 12; interpolation.palfx.mul: 0,0,256; redirectid: $charID;}
+		let numparticles = 6;
+		let numbluebeams = 6;
+		let numredbeams = 6;
+	case 4:
+		explod{id: 10054; anim: 10054; facing: 1; pos: $sparkx,$sparky; postype: P1; ontop: 1; bindtime: 0; removetime: -2; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 12; interpolation.palfx.mul: 0,0,256; redirectid: $charID;}
+		let numparticles = 6;
+		let numbluebeams = 6;
+		let numredbeams = 6;
+#	case 5:
+#	case 6:
+#	case 7:
+#	case 8:
+#	case 9:
+#	case 10:
+#	case 11:
+#	case 12:
+	case 13:
+		explod{id: 10062; anim: 10062; facing: 1; pos: $sparkx,$sparky; postype: P1; ontop: 1; bindtime: 0; removetime: -2; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 16; interpolation.palfx.mul: 0,0,256; redirectid: $charID;}
+		let numbluebeams = 4;
+#	case 14:
+#	case 15:
+#	case 16:
+}
+
+for i = 1; $numparticles; 1 {
+	let escale = randomRange(0,100)/100.0;
+	let eangle = randomRange(-18000,18000)*pi/18000.0;
+	let espeed = randomRange(400,1000)/100.0;
+	explod{anim: 10050; ID: 10050; pos: $sparkx,$sparky; postype: p1; facing: 1; bindtime: 0; vel: $espeed*sin($eangle),$espeed*cos($eangle); removetime: -2; pausemovetime: -1; supermovetime: -1; scale: $escale,$escale; ontop: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; redirectid: $charID;}
+}
+
+for i = 1; $numbluebeams; 1 {
+	let eangle = randomRange(-18000,18000)/100.0;
+	let edir = rad($eangle);
+	let espeed = randomRange(0,1000)/100.0;
+	explod{anim: 10051; ID: 10051; pos: $sparkx,$sparky; postype: p1; facing: 1; bindtime: 0; vel: $espeed*sin($edir),$espeed*cos($edir); removetime: -2; pausemovetime: -1; supermovetime: -1; scale: randomRange(100,3000)/100.0,randomRange(100,400)/100.0; angle: $eangle-90; ontop: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; redirectid: $charID;}
+}
+
+for i = 1; $numredbeams; 1 {
+	let eangle = randomRange(-18000,18000)/100.0;
+	let edir = rad($eangle);
+	let espeed = randomRange(0,1000)/100.0;
+	explod{anim: 10052; ID: 10052; pos: $sparkx,$sparky; postype: p1; facing: 1; bindtime: 0; vel: $espeed*sin($edir),$espeed*cos($edir); removetime: -2; pausemovetime: -1; supermovetime: -1; scale: randomRange(100,3000)/100.0,randomRange(100,400)/100.0; angle: $eangle-90; ontop: 1;shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; redirectid: $charID;}
+}
+
 #===============================================================================
 # PreUpdate
 #===============================================================================
@@ -55,13 +118,13 @@ for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
 				if player($i),hitFall {
 					getHitVarSet{fall.recovertime: (player($i),getHitVar(fall.recovertime)-player($i),getHitVar(HitShakeTime))*$prevrate + player($i),getHitVar(HitShakeTime); redirectid: $charID;}
 				}
+				if sign(root,pos X-player($i),pos X) != player($i),facing {
+					turn{redirectid: $charID;}
+				}
 			}
-		}
-		if player($i),map(SokuComboLimit) >= 100 {
-			getHitVarSet{fall.recover: 0; redirectid: $charID;}
-			notHitBy{attr: SCA,AA,AP,AT; time: 1; slot: 7; redirectid: $charID;}
-		} else if player($i),hitFall && player($i),canRecover {
-			notHitBy{attr: SCA,AA,AP,AT; time: 1; slot: 7; redirectid: $charID;}
+			if sign(player($i),pos X-root,pos X) != root,facing {
+				getHitVarSet{xvel: -player($i),getHitVar(xvel); redirectid: $charID;}
+			}
 		}
 		if player($i),getHitVar(playerno) = playerNo && !player($i),pauseTime && !player($i),inCustomState && player($i),hitShakeOver {
 			if player($i),stateType = S || player($i),stateType = C {
@@ -77,30 +140,38 @@ for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
 				if $SokuGetHitType != 3 {
 					getHitVarSet{fall.yvel: player($i),vel Y/-2; redirectid: $charID;}
 				}
-				if !$SokuGetHitType && player($i),hitFall && player($i),vel Y <= 0 {
-					velAdd{y: player($i),getHitVar(yaccel); redirectid: $charID;}
+				if !$SokuGetHitType && player($i),getHitVar(yaccel) = 0.25 && player($i),hitFall && player($i),vel Y <= 0 {
+					velAdd{y: 0.25; redirectid: $charID;}
 				} else if $SokuGetHitType = 2 && player($i),backEdgeBodyDist <= 0 {
 					selfState{value: 5600; ctrl: 0; continue: 1; readplayerid: root,ID; redirectid: $charID;}
 					playSnd{value: S52,1; volumescale: 200; abspan: player($i),pos X;}
-					explod{id: 15100; anim: 15100; pos: player($i),pos X+camerapos X,player($i),pos Y-50; postype: none; sprpriority: 0; bindtime: 0; facing: 1; removetime: -2; supermovetime: -1; pausemovetime: -1; ownpal: 1; yangle: -80; shader: "trans_rights"; shadertime: -1;}
+					explod{id: 15100; anim: 15100; pos: gameWidth/2.0*sign(player($i),pos X)+camerapos X,player($i),pos Y+player($i),groundLevel-50; postype: none; sprpriority: 0; bindtime: 0; facing: 1; removetime: -2; supermovetime: -1; pausemovetime: -1; ownpal: 1; yangle: -80; shader: "trans_rights"; shadertime: -1;}
 					mapSet{map: "SokuGetHitType"; value: -1; redirectid: $charID;}
 				}
 			}
 		}
-		if player($i),getHitVar(playerid) = root,ID && player($i),backEdgeBodyDist+player($i),vel X <= 0 {
-			mapSet{map: "DoSokuCornerPush"; value: 1+player($i),getHitVar(guarded); redirectid: root,ID;}
+		if player($i),getHitVar(playerid) = root,ID && (player($i),map(SokuGetHitType) != 2 || player($i),getHitVar(guarded)) && player($i),backEdgeBodyDist+player($i),vel X <= 0 {
+			mapSet{map: "DoSokuCornerPush"; value: cond(player($i),stateType = A,3,1+player($i),getHitVar(guarded)); redirectid: root,ID;}
 		}
-	} else {
-		mapSet{map: "SokuComboLimit"; value: 0; redirectid: $charID;}
-		mapSet{map: "SokuComboRate"; value: 1; redirectid: $charID;}
-		mapSet{map: "SokuGetHitType"; value: 0; redirectid: $charID;}
 	}
 }
 
-displayToClipboard{text:"id = %d"; params: id;}
+for i = 0; root,numHelper; 1 {
+	if root,helperIndex($i),map(SokuHitEffect) > 0 && root,helperIndex($i),moveHitVar(frame) && root,helperIndex($i),moveHit {
+		if root,helperIndex($i),map(ZenithClashNonCompat) {
+			for en = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
+				if player($en),getHitVar(frame) && !player($en),getHitVar(guarded) && root,helperIndex($i),hasHit(player($en),ID) {
+					call HitEffect(root,helperIndex($i),map(SokuHitEffect), root,helperIndex($i),ID);
+				}
+			}
+		} else {
+			call HitEffect(root,helperIndex($i),map(SokuHitEffect), root,helperIndex($i),ID);
+		}
+	}
+}
+
 for i = numExplod(15400)-1; 0; -1 {
 	let charID = explodVar(15400, $i, bindid);
-	appendToClipboard{text:"explod%did = %d"; params: $i,$charID;}
 	if playerId($charID),map(SokuComboLimit) < 100 {
 		explod{id: 15401; anim: explodVar(15400, $i, anim); animelem: explodVar(15400, $i, animelem); animelemtime: explodVar(15400, $i, animelemtime); facing: explodVar(15400, $i, facing)*facing; pos: 0,-50; postype: P1; sprpriority: 0; bindtime: -1; removetime: 13; trans: add; alpha: 256,256; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 13; interpolation.alpha: 0,256; interpolation.palfx.mul: 0,0,256; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
 		modifyExplod{id: 15401; index: numExplod(15401)-1; bindid: $charID;}
@@ -127,6 +198,12 @@ for i = 0; numExplod(15401)-1; 1 {
 [StateDef -4]
 ignoreHitPause {
 
+if isHelper {
+	if enemyNear,name = "Flandre_Scarlet" {
+		map(BasePriority) := 5;
+	} else {map(BasePriority) := 4;}
+}
+
 if isHelper(1211920) {
 	for i = numPlayer-1; 0; -1 {
 		if playerIndex($i),ID = ID {break;}
@@ -140,6 +217,7 @@ if isHelper(1211920) {
 assertSpecial{flag: NoJump; flag2: NoStandGuard; flag3: NoCrouchGuard; flag4: NoAirGuard; flag5: NoIntroReset;}
 
 if inputtime(a) > 0 {
+	if command = "8a" {assertCommand{name: "8a"; buffer.time: max(8-inputtime(a), 2);}}
 	if command = "6a" {assertCommand{name: "6a"; buffer.time: max(8-inputtime(a), 2);}}
 	if command = "4a" {assertCommand{name: "4a"; buffer.time: max(8-inputtime(a), 2);}}
 	if command = "1a" {assertCommand{name: "1a"; buffer.time: max(8-inputtime(a), 2);}}
@@ -190,12 +268,15 @@ if map(DoSokuCornerPush) = 1 {
 	posAdd{x: map(SokuCornerPush)*facing;}
 } else if map(DoSokuCornerPush) = 2 {
 	posAdd{x: map(SokuGuardCornerPush)*facing;}
+} else if map(DoSokuCornerPush) = 3 {
+	posAdd{x: map(SokuAirCornerPush)*facing;}
 }
 
 map(SokuCornerPush) := max(0, abs(map(SokuCornerPush))-map(SokuCornerPushDecel))*sign(map(SokuCornerPush));
 map(SokuGuardCornerPush) := max(0, abs(map(SokuGuardCornerPush))-map(SokuGuardCornerPushDecel))*sign(map(SokuGuardCornerPush));
+map(SokuAirCornerPush) := max(0, abs(map(SokuAirCornerPush))-1)*sign(map(SokuAirCornerPush));
 
-if !map(SokuCornerPush) && !map(SokuGuardCornerPush) {
+if !map(SokuCornerPush) && !map(SokuGuardCornerPush) && !map(SokuAirCornerPush) {
 	map(DoSokuCornerPush) := 0;
 }
 
@@ -220,12 +301,33 @@ ignoreHitPause {
 assertSpecial{flag: RunLast;}
 notHitBy{attr: SCA,AA,AP,AT; time: -1;}
 
-for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 { # I forgot what I was going to do with this, lmao
+for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
+	let charID = player($i),ID;
+	if player($i),moveType != H || player($i),ctrl || player($i),stateNo = 5150 {
+		mapSet{map: "SokuComboLimit"; value: 0; redirectid: $charID;}
+		mapSet{map: "SokuComboRate"; value: 1; redirectid: $charID;}
+		mapSet{map: "SokuGetHitType"; value: 0; redirectid: $charID;}
+	}
+	if player($i),map(SokuComboLimit) >= 100 {
+		getHitVarSet{fall.recover: 0; redirectid: $charID;}
+		notHitBy{attr: SCA,AA,AP,AT; time: 1; slot: 7; redirectid: $charID;}
+	} else if player($i),hitFall && player($i),canRecover {
+		notHitBy{attr: SCA,AA,AP,AT; time: 1; slot: 7; redirectid: $charID;}
+	}
+	if player($i),authorName = "nns" && player($i),moveType = A && player($i),time < 10 {
+		hitBy{value2: SCA,AA,AP,AT; time: 0; redirectid: $charID;}
+		for h = player($i),numHelper; 1; -1 {
+			let helpID = player($i),helperIndex($h),ID;
+			if playerId($helpID),stateNo = 13000 {
+				destroySelf{removeexplods: 1; recursive: 1; redirectid: $helpID}
+			}
+		}
+	}
 }
 
 for i = 0; numPlayer - 1; 1 {
 	let charID = playerIndex($i),ID;
-	assertSpecial{flag: NoFallDefenceUp; redirectid: $charID;}
+	assertSpecial{flag: NoFallDefenceUp; flag2: NoKoVelocity; flag3: NoKoFall; redirectid: $charID;}
 	if playerIndex($i),teamSide != root,teamSide && root,isAsserted(playerpush) && playerIndex($i),isAsserted(playerpush) && root,clsnOverlap(size, $charID, size) {
 		let ff = sign(playerIndex($i),pos X+(playerIndex($i),distOffset X*playerIndex($i),facing)-(root,pos X+(root,distOffset X*root,facing)));
 		let p1c = 0.0;
@@ -292,6 +394,10 @@ if (moveType = H && anim != 150 && anim != 152) || inCustomState {map(NoElectron
 
 if !isHelper && !inCustomState {
 
+if getHitVar(frame) {
+	call ActionStart(0);
+}
+
 if !ctrl {
 	if map(CanMotionCancel) && stateType != A && command = "holdup" {
 		call ActionStart(1);
@@ -318,6 +424,24 @@ if !ctrl {
 	}
 }
 
+ignoreHitPause if command = "L" && inputTime(L) = 1 {
+	if map(DoubleTapL) = [1,18] {
+		map(DoubleTapL) := 0;
+		assertCommand{name: "BB"; buffer.time: 10;}
+	} else {map(DoubleTapL) := 1;}
+} else if map(DoubleTapL) {
+	map(DoubleTapL) := map(DoubleTapL)+1;
+}
+
+ignoreHitPause if command = "R" && inputTime(R) = 1 {
+	if map(DoubleTapR) = [1,18] {
+		map(DoubleTapR) := 0;
+		assertCommand{name: "FF"; buffer.time: 10;}
+	} else {map(DoubleTapR) := 1;}
+} else if map(DoubleTapR) {
+	map(DoubleTapR) := map(DoubleTapR)+1;
+}
+
 if stateType = A && (ctrl || map(CanMotionCancel)) {
 	if command = "FF" {
 		call ActionStart(4);
@@ -341,6 +465,30 @@ if !introState {
 		assertCommand{name: "b"; buffer.time: 0;}
 		call ActionStart(100);
 		changeState{value: 310; ctrl: 0; continue: 1;}
+	} else if stateType = A && command = "2a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
+		assertCommand{name: "6a"; buffer.time: 0;}
+		assertCommand{name: "4a"; buffer.time: 0;}
+		assertCommand{name: "2a"; buffer.time: 0;}
+		assertCommand{name: "3a"; buffer.time: 0;}
+		assertCommand{name: "1a"; buffer.time: 0;}
+		assertCommand{name: "a"; buffer.time: 0;}
+		call ActionStart(30);
+		changeState{value: 620; ctrl: 0; continue: 1;}
+	} else if stateType = A && command = "8a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
+		assertCommand{name: "8a"; buffer.time: 0;}
+		assertCommand{name: "a"; buffer.time: 0;}
+		call ActionStart(30);
+		changeState{value: 630; ctrl: 0; continue: 1;}
+	} else if stateType = A && ((command = "6a" && facing = 1) || (command = "4a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
+		assertCommand{name: "6a"; buffer.time: 0;}
+		assertCommand{name: "4a"; buffer.time: 0;}
+		assertCommand{name: "a"; buffer.time: 0;}
+		call ActionStart(30);
+		changeState{value: 610; ctrl: 0; continue: 1;}
+	} else if stateType = A && command = "a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 10)) {
+		assertCommand{name: "a"; buffer.time: 0;}
+		call ActionStart(20);
+		changeState{value: 600; ctrl: 0; continue: 1;}
 	} else if stateType != A && ((command = "3a" && facing = 1) || (command = "1a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
 		assertCommand{name: "6a"; buffer.time: 0;}
 		assertCommand{name: "4a"; buffer.time: 0;}
@@ -350,10 +498,16 @@ if !introState {
 		assertCommand{name: "a"; buffer.time: 0;}
 		call ActionStart(30);
 		changeState{value: 410; ctrl: 0; continue: 1;}
-	} else if stateType != A && command = "a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 10)) {
+	} else if stateType != A && ((command = "4a" && facing = 1) || (command = "6a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 10)) {
+		assertCommand{name: "6a"; buffer.time: 0;}
+		assertCommand{name: "4a"; buffer.time: 0;}
 		assertCommand{name: "a"; buffer.time: 0;}
 		call ActionStart(20);
 		changeState{value: 200; ctrl: 0; continue: 1;}
+	} else if stateType != A && command = "a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 10)) {
+		assertCommand{name: "a"; buffer.time: 0;}
+		call ActionStart(20);
+		changeState{value: cond(cond(const(Mugensoku.HoldXFar5A),command = "holdx",p2Dist X > 90),250,200); ctrl: 0; continue: 1;}
 	} else if stateType != A && floor(map(ZenithSpecialMotion)/1000) = 326 && floor(map(ZenithSpecialButton))&2 && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 50)) {
 		assertCommand{name: "b"; buffer.time: 0;}
 		call ActionStart(100);
@@ -399,7 +553,9 @@ if ((inputTime(L) > 0 && (facing = 1 || p2,pos X >= pos X)) || (inputTime(R) > 0
 		} else {
 			guard{guardflag: H;}
 		}
-	} else {
+	} else if p2,authorName != "nns" {
 		guard{guardflag: A;}
+	} else {
+		guard{guardflag: HA;}
 	}
 }

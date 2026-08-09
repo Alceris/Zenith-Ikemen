@@ -53,11 +53,15 @@ time = 0
 name = "L"
 command = L
 time = 0
+buffer.hitpause = 0
+buffer.pauseend = 0
 
 [Command]
 name = "R"
 command = R
 time = 0
+buffer.hitpause = 0
+buffer.pauseend = 0
 
 [Command]
 name = "holdx"
@@ -110,13 +114,18 @@ command = /$D,a
 time = 0
 
 [Command]
+name = "8a"
+command = /U,a
+time = 0
+
+[Command]
 name = "6a"
-command = /$R,a
+command = /R,a
 time = 0
 
 [Command]
 name = "4a"
-command = /$L,a
+command = /L,a
 time = 0
 
 [Command]
@@ -162,13 +171,13 @@ buffer.time = 16
 
 [Command]
 name = "FF"
-command = >R, >~R, >R
+command = R + ~R + R
 time = 18
 buffer.time = 10
 
 [Command]
 name = "BB"
-command = >L, >~L, >L
+command = L + ~L + L
 time = 18
 buffer.time = 10
 

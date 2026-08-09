@@ -4,10 +4,11 @@ map(CanActionCancel) := 0;
 map(CanMotionCancel) := 0;
 map(CanGuard) := 0;
 
-[Function HitFactors(Proration, LimitGain, Friction)]
+[Function HitFactors(Proration, LimitGain, Friction, Effect)]
 map(Proration) := $Proration;
 map(LimitGain) := $LimitGain;
 map(SokuHitFriction) := $Friction;
+map(SokuHitEffect) := $Effect;
 
 [StateDef 1100;
 type: S;
@@ -63,7 +64,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 if !time {
 	map(SokuHitType) := 1;
 	shaderSet{shader: "trans_rights"; time: -1;}
-	call HitFactors(0.95, 10, 0);
+	call HitFactors(0.95, 10, 0, 3);
 	fVar(0) := 8.25;
 	fVar(1) := 0.15;
 }
@@ -114,7 +115,7 @@ trans{trans: add; alpha: lerp(0,256,(time+1)/9.0),256;}
 modifyExplod{ID: 1104; trans: add; alpha: lerp(0,256,(time+1)/9.0),256; angle: time*-2-2; sprpriority: sprpriority+1;}
 
 if !moveContact && time > 7 {
-	hitDef{attr: S,SP; hitflag: MAF; guardflag: MA; animtype: Up; priority: 4,Hit; damage: 32,4; getpower: 10,10; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.4; ground.velocity: 2.5,-15; guard.velocity: -6.5; air.velocity: 2.5,-15; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: sprPriority; p1getp2facing: 0; fall: 1; fall.recover: 1; fall.recovertime: 70; fall.damage: 0; down.bounce: 1; id: 1100; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+	hitDef{attr: S,SP; hitflag: MAFD; guardflag: MA; animtype: Up; priority: floor(map(BasePriority)),Hit; damage: 32,4; getpower: 10,10; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.4; ground.velocity: 2.5,-15; guard.velocity: -6.5; air.velocity: 2.5,-15; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: sprPriority; p1getp2facing: 0; fall: 1; fall.recover: 1; fall.recovertime: 70; fall.damage: 0; down.bounce: 1; id: 1100; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 }
 
 [StateDef 1102;
@@ -199,7 +200,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 if !time {
 	map(SokuHitType) := 1;
 	shaderSet{shader: "trans_rights"; time: -1;}
-	call HitFactors(0.95, 10, 0);
+	call HitFactors(0.95, 10, 0, 3);
 	fVar(0) := 6.25;
 	fVar(1) := 0.23;
 }
@@ -250,7 +251,7 @@ trans{trans: add; alpha: lerp(0,256,(time+1)/9.0),256;}
 modifyExplod{ID: 1104; trans: add; alpha: lerp(0,256,(time+1)/9.0),256; angle: time*-2-2; sprpriority: sprpriority+1;}
 
 if !moveContact && time > 7 {
-	hitDef{attr: S,SP; hitflag: MAF; guardflag: MA; animtype: Up; priority: 4,Hit; damage: 40,5; getpower: 10,10; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.4; ground.velocity: 2.5,-15; guard.velocity: -6.5; air.velocity: 2.5,-15; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: sprPriority; p1getp2facing: 0; fall: 1; fall.recover: 1; fall.recovertime: 70; fall.damage: 0; down.bounce: 1; id: 1100; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+	hitDef{attr: S,SP; hitflag: MAFD; guardflag: MA; animtype: Up; priority: floor(map(BasePriority)),Hit; damage: 40,5; getpower: 10,10; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.4; ground.velocity: 2.5,-15; guard.velocity: -6.5; air.velocity: 2.5,-15; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: sprPriority; p1getp2facing: 0; fall: 1; fall.recover: 1; fall.recovertime: 70; fall.damage: 0; down.bounce: 1; id: 1100; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 }
 
 [StateDef 1107;
@@ -288,7 +289,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 if !time {
 	map(SokuHitType) := 1;
 	shaderSet{shader: "trans_rights"; time: -1;}
-	call HitFactors(0.96, 2, 0);
+	call HitFactors(0.96, 2, 0, 3);
 }
 
 if map(ZenithClashesHiPrio) > 0 {
@@ -328,7 +329,7 @@ if time < 10 {
 
 if !moveContact {
 	map(ZenithClashPoints) := 1;
-	hitDef{attr: S,SP; hitflag: MAF; guardflag: MA; animtype: Up; priority: 4,Hit; damage: 20,2; getpower: 2,2; pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.4; ground.velocity: 2.5,-10; guard.velocity: -6.5; air.velocity: 2.5,-15; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: sprPriority; p1getp2facing: 0; fall: 1; fall.recover: 1; fall.recovertime: 60; fall.damage: 0; down.bounce: 1; id: 1100; chainID: -1; nochainID: -1; hitonce: 1; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+	hitDef{attr: S,SP; hitflag: MAFD; guardflag: MA; animtype: Up; priority: floor(map(BasePriority)),Hit; damage: 20,2; getpower: 2,2; pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.4; ground.velocity: 2.5,-10; guard.velocity: -6.5; air.velocity: 2.5,-15; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: sprPriority; p1getp2facing: 0; fall: 1; fall.recover: 1; fall.recovertime: 60; fall.damage: 0; down.bounce: 1; id: 1100; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 }
 
 [StateDef 1108;
