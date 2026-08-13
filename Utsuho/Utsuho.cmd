@@ -144,6 +144,11 @@ command = b
 time = 0
 
 [Command]
+name = "2b"
+command = /$D,b
+time = 0
+
+[Command]
 name = "c"
 command = c
 time = 0
@@ -167,6 +172,12 @@ time = 0
 name = "SuperJump"
 command = $D,$U
 time = 18
+buffer.time = 16
+
+[Command]
+name = "SuperJump"
+command = $D+$U
+time = 0
 buffer.time = 16
 
 [Command]

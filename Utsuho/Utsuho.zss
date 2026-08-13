@@ -954,6 +954,7 @@ if time > 0 {
 if time = 0 {
 	posSet{y: 0}
 	velSet{x: 0; y: 0}
+	getHitVarSet{down.recovertime: const(data.liedown.time)}
 } else if !animTime {
 	if !alive {changeState{value: 5150}}
 	changeAnim{value: 5110}

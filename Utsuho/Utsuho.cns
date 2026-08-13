@@ -68,3 +68,7 @@ Super.GetHit.LifeToPowerMul = 0
 Mugensoku.UnlimitedDash = 0
 Mugensoku.BeamsStopOnClash = 0
 Mugensoku.HoldXFar5A = 1
+Mugensoku.Utsuho.BetterJ2A = 1
+Default.Enable.GuardBreak = 0
+StateGuardBreakHit = 5300
+StateGuardBreakRecover = 5301
