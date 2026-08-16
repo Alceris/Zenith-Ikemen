@@ -120,7 +120,7 @@ if animElem = 4 {
 	hitDef{attr: S, NA;
 	damage: 100;
 	hitonce: enemynear,name != "Dragon Tank";
-	animtype: Back;
+	animtype: Heavy;
 	guardflag: L;
 	hitflag: MAF;
 	priority: 4, Hit;
@@ -194,7 +194,7 @@ if animElem = 3 {
 	hitDef{attr: S, NA;
 	damage: 100;
 	hitonce: enemynear,name != "Dragon Tank";
-	animtype: Back;
+	animtype: Heavy;
 	guardflag: M;
 	hitflag: MAF;
 	priority: 4, Hit;
@@ -218,6 +218,73 @@ if animElem = 3 {
 	fall.recover: 1;
 	fall.xvelocity: -6;
 	fall.recovertime: 55;
+	yaccel: 0.25;
+	stand.friction: 1;
+	crouch.friction: 1;
+	getpower: 120,80;
+	ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0;}
+} else if animElem = 6 {
+	stateTypeSet{movetype: I;}
+} else if animTime = 0 {
+	changeState{value: 0; ctrl: 1;}
+}
+
+if moveContact = 1 {
+	map(CanActionCancel) := 1;
+	map(DoSokuCornerPush) := 0;
+	map(SokuCornerPush) := -8.25*facing;
+	map(SokuCornerPushDecel) := 1.125;
+	map(SokuGuardCornerPush) := -4.65*facing;
+	map(SokuGuardCornerPushDecel) := 0.225;
+	map(SokuAirCornerPush) := -6*facing;
+}
+
+[StateDef 300;
+type: S;
+movetype: A;
+physics: N;
+ctrl: 0;
+anim: 300;
+sprpriority: 1;]
+
+if !time {
+	velSet{x: 7.5;}
+} else if animElemTime(5) > 0 {
+	velSet{x: max(0, vel X-0.75);}
+}
+
+if animElem = 5 {
+	call HitFactors(0.9, 0, 1.5, 3, 2);
+	map(ZenithNoClash) := 1;
+	map(SokuHitType) := 0;
+	playSnd{value: S2,2;}
+	hitDef{attr: S, NA;
+	damage: 85;
+	hitonce: enemynear,name != "Dragon Tank";
+	animtype: Heavy;
+	guardflag: M;
+	hitflag: MAF;
+	priority: 4, Hit;
+	pausetime: 10, 10;
+	sparkno: -1;
+	sparkxy: 18, -53;
+	hitsound: S0, 2;
+	guardsound: S1, 0;
+	ground.type: High;
+	ground.slidetime: 24;
+	ground.hittime: 24;
+	ground.velocity: -12.5;
+	guard.ctrltime: 21;
+	airguard.ctrltime: 19;
+	air.type: Low;
+	air.velocity: -12.25,-6;
+	air.hittime: 0;
+	guard.velocity: -6.5;
+	airguard.velocity: -3,-6;
+	air.fall: 1;
+	fall.recover: 1;
+	fall.xvelocity: -6;
+	fall.recovertime: 45;
 	yaccel: 0.25;
 	stand.friction: 1;
 	crouch.friction: 1;
@@ -271,6 +338,7 @@ if time && vel X > 0 {
 
 if animElemTime(6) < 0 {
 	notHitBy{attr: ,AP; time: 1; slot: 0;}
+	map(IsSokuGrazing) := 1;
 }
 
 if animElemTime(5) = [2,5] {
@@ -320,7 +388,7 @@ if animElemTime(5) = [2,5] {
 	hitDef{attr: A, NA;
 	damage: 110;
 	hitonce: enemynear,name != "Dragon Tank";
-	animtype: Back;
+	animtype: Heavy;
 	guardflag: MA;
 	hitflag: MAF;
 	priority: 4, Hit;
@@ -406,7 +474,7 @@ if animElem = 4 {
 	hitDef{attr: S, NA;
 	damage: 110;
 	hitonce: enemynear,name != "Dragon Tank";
-	animtype: Back;
+	animtype: Heavy;
 	guardflag: M;
 	hitflag: MAF;
 	priority: 4, Hit;
@@ -624,7 +692,7 @@ if animElem = 3 {
 	hitDef{attr: A, NA;
 	damage: 110;
 	hitonce: enemynear,name != "Dragon Tank";
-	animtype: Back;
+	animtype: Heavy;
 	guardflag: HA;
 	hitflag: MAF;
 	priority: 4, Hit;
@@ -763,7 +831,7 @@ if animElem = 4 && map(Charge) {
 	hitDef{attr: A, NA;
 	damage: 120;
 	hitonce: enemynear,name != "Dragon Tank";
-	animtype: Back;
+	animtype: Heavy;
 	guardflag: HA;
 	hitflag: MAF;
 	priority: 4, Hit;
@@ -864,7 +932,7 @@ if animElem = 4 {
 	hitDef{attr: A, NA;
 	damage: 100;
 	hitonce: enemynear,name != "Dragon Tank";
-	animtype: Back;
+	animtype: Heavy;
 	guardflag: HA;
 	hitflag: MAF;
 	priority: 4, Hit;
@@ -941,7 +1009,7 @@ if moveContact {
 	hitDef{attr: A, NP;
 	damage: 120;
 	hitonce: enemynear,name != "Dragon Tank";
-	animtype: Back;
+	animtype: Heavy;
 	guardflag: HA;
 	hitflag: MAF;
 	priority: 4, Hit;
@@ -1011,7 +1079,7 @@ if animElem = 3 {
 	hitDef{attr: A, NA;
 	damage: 115;
 	hitonce: enemynear,name != "Dragon Tank";
-	animtype: Up;
+	animtype: Heavy;
 	guardflag: HA;
 	hitflag: MAF;
 	priority: 4, Hit;
@@ -1228,16 +1296,22 @@ if random%4 = 0 {
 
 ignoreHitPause {
 
-if map(ZenithClashesHiPrio) > 0 {
+if map(GotGrazed) {
+	map(GrazedTime) := ceil(map(GrazedTime)+1);
+} else {
+	map(GrazedTime) := 0;
+}
+
+map(GotGrazed) := 0;
+
+if map(ZenithClashesHiPrio) > 0 || map(GrazedTime) > 5 {
 	map(ZenithClashPoints) := 0;
 } else if map(ZenithClashesEqPrio) > 0 {
 	mapAdd{map: "ZenithClashPoints"; value: -map(ZenithClashesEqPrio);}
-	if !var(1) {
-		var(1) := 1;
-	}
 }
 
-if map(ZenithClashPoints) <= 0 || (moveContact && (!map(ZenithClashNonCompat) || hasHit(enemyNear,ID))) || frontEdgeDist <= -200 || (root,movetype = H && !root,getHitVar(guarded)) || root,inCustomState {
+var(0) := (abs(pos X) > gameWidth || screenPos Y+cameraPos Y > gameHeight*2 || screenPos Y < -gameHeight);
+if var(0) || map(ZenithClashPoints) <= 0 || (moveContact && (!map(ZenithClashNonCompat) || hasHit(enemyNear,ID))) || (root,movetype = H && !root,getHitVar(guarded)) || root,inCustomState {
 	changeState{value: 502;}
 }
 
@@ -1249,7 +1323,7 @@ for i = 0; numExplod(504)-1; 1 {
 	modifyExplod{id: 504; index: $i; scale: $escale,$escale; friction: 0.92,0.92,$escale*0.92;}
 }
 
-hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: Medium; priority: floor(map(BasePriority))-1,Hit; damage: 20,0; guardpoints: 50; getpower: 16,16; pausetime: 0,5; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: Low; ground.slidetime: 17; ground.hittime: 17; air.hittime: 20; guard.ctrltime: 15; yaccel: 0.25; ground.velocity: -7.5; guard.velocity: -5; air.velocity: -3,-6; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; air.fall: 1; fall.recover: 1; fall.recovertime: 30; fall.damage: 0; down.bounce: 1; id: 500; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: Medium; priority: floor(map(BasePriority))-1,Hit; damage: 20,0; guardpoints: 50; getpower: 16,16; pausetime: 0,5; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: Low; ground.slidetime: 17; ground.hittime: 17; air.hittime: 20; guard.ctrltime: 15; yaccel: 0.25; ground.velocity: -7.5; guard.velocity: -5; air.velocity: -3,-6; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; air.fall: 1; fall.xvelocity: -1.5; fall.recover: 1; fall.recovertime: 30; fall.damage: 0; down.bounce: 1; id: 500; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 
 }
 
@@ -1283,7 +1357,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 }
 
 if !time {
-	if frontEdgeDist > -200 {
+	if !var(0) {
 		playSnd{value: S500,1; volumescale: 200; channel: 6;}
 	}
 } else if fVar(0) < 1 {
@@ -1731,7 +1805,7 @@ if numExplod(514) > 0 {
 modifyExplod{ID: 10510; trans: sub; alpha: 200+ceil(56*sin(pi*explodvar(10510,0,time)/14.0)),256; sprpriority: sprPriority;}
 
 if !moveContact {
-	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: floor(map(BasePriority)),Hit; damage: 40,0; guardpoints: 50; getpower: 30,30; pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; yaccel: 0.25; ground.velocity: -6.25,-7.75; guard.velocity: -6.5; air.velocity: -6.25,-7.75; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; fall: 1; fall.recover: 1; fall.recovertime: 45; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: Heavy; priority: floor(map(BasePriority)),Hit; damage: 40,0; guardpoints: 50; getpower: 30,30; pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; yaccel: 0.25; ground.velocity: -6.25,-7.75; guard.velocity: -6.5; air.velocity: -6.25,-7.75; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; fall: 1; fall.xvelocity: -3.125; fall.recover: 1; fall.recovertime: 45; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 }
 
 }
@@ -1923,7 +1997,7 @@ if var(0) = 3 || (!var(0) && map(ZenithClashNonCompat) && !HasHit(enemynear,ID))
 	moveHitReset{}
 }
 
-if map(ZenithClashPoints) <= 0 || time > 40 || parent,time = 1 {
+if map(ZenithClashPoints) <= 0 || time > 40 || (parent,stateNo != 520 && parent,stateNo != 525 && parent,stateNo != 725 && time) {
 	changeState{value: 522;}
 }
 
@@ -1962,7 +2036,7 @@ ignoreHitPause for i = 0; numExplod(524) - 1; 1 {
 }
 
 if !moveContact {
-	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: back; priority: floor(map(BasePriority)),Hit; damage: 15,0; guardpoints: 25; getpower: 10,10; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.25; ground.velocity: -9,-4; guard.velocity: -6.5; air.velocity: -9,-4; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; fall: 1; fall.recover: 1; fall.recovertime: 50; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: Heavy; priority: floor(map(BasePriority)),Hit; damage: 15,0; guardpoints: 25; getpower: 10,10; pausetime: 0,10; sparkno: -1; guard.sparkno: -1; sparkxy: $beamEndX,$beamEndY; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.25; ground.velocity: -9,-4; guard.velocity: -6.5; air.velocity: -9,-4; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; fall: 1; fall.xvelocity: -4.5; fall.recover: 1; fall.recovertime: 50; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 }
 
 [StateDef 522;

@@ -28,6 +28,7 @@ if vel x > 0 {
 [StateDef 41; type: S; movetype: A; physics: N; anim: 40; ctrl: 0;]
 
 attackDist{value: 0, 0;}
+map(IsSokuGrazing) := 1;
 notHitBy{attr: ,AP,AT; time: 1; slot: 0;}
 
 if !time {
@@ -89,7 +90,7 @@ if !animTime {
 	shadertime: -1;
 	}
 	sysFVar(35) := ifelse(sysvar(1),.25,.2);
-	playSnd{value: S100,1; volumescale: 100; channel: -1;}
+	playSnd{value: S100,1; volumescale: 100;}
 	
 	if prevStateNo = 100 {
 		velSet{x: ifelse(sysvar(1) = 1,const(velocity.runjump.fwd.x),const(velocity.walk.fwd.x)); y: ifelse(sysvar(1),const(velocity.runjump.y),const(velocity.runjump.up.y))}
@@ -124,6 +125,7 @@ if animElem = 3 {
 	ctrlSet{value: 1;}
 }
 if animElemTime(5) < 0 {
+	map(IsSokuGrazing) := 1;
 	notHitBy{attr: ,AP; time: 1; slot: 1;}
 	assertSpecial{flag: NoAirGuard;}
 	attackDist{value: 0, 0;}
@@ -223,6 +225,7 @@ if time >= 30 && (command != "holdfwd" || (!const(Mugensoku.UnlimitedDash) && ti
 }
 
 notHitBy{value: ,AP; time: 1;}
+map(IsSokuGrazing) := 1;
 
 [StateDef 101;
 type: S;
@@ -239,6 +242,7 @@ if !time {
 }
 
 notHitBy{value: ,AP; time: 1;}
+map(IsSokuGrazing) := 1;
 
 if vel X {
 	velSet{x: max(vel X - 0.25, 0);}
@@ -353,6 +357,7 @@ if time <= 21 {
 	notHitBy{value: ,AA,AP,AT; time: 1;}
 } else {
 	notHitBy{value: ,AP; time: 1;}
+	map(IsSokuGrazing) := 1;
 }
 
 [StateDef 106;
@@ -477,6 +482,7 @@ if animElemTime(14) < 0 {
 		}
 	}
 	notHitBy{value: ,AP; time: 1;}
+	map(IsSokuGrazing) := 1;
 	if abs(vel X) > 6 {
 		velSet{x: max(abs(vel X) - 0.25, 6.0)*sign(vel X);}
 	}
@@ -586,6 +592,7 @@ if animElemTime(14) < 0 {
 		}
 	}
 	notHitBy{value: ,AP; time: 1;}
+	map(IsSokuGrazing) := 1;
 	if abs(vel X) > 6 {
 		velSet{x: max(abs(vel X) - 0.25, 6.0)*sign(vel X);}
 	}
