@@ -37,7 +37,7 @@ if isHelper(1211920) && root,ID = playerIndex(0),ID {
 	}
 	for i = 0; numPlayer - 1; 1 {
 		playerPush{value: 0; redirectid: playerIndex($i),ID;} # Prevent push logic from happening at its usual time, because that leads to clsnoverlap inconsistencies.
-		if playerIndex($i),map(ZenithNoClash) {
+		if playerIndex($i),map(ZenithNoClash) || playerIndex($i),reversalDefAttr = SCA,AA,AP,AT {
 			continue;
 		}
 		let charID = playerIndex($i),ID;
@@ -46,13 +46,16 @@ if isHelper(1211920) && root,ID = playerIndex(0),ID {
 			let enID = playerIndex($en),ID;
 			if playerIndex($en),numProj > 0 {
 				for p = playerIndex($en),numProj - 1; 0; -1 {
-					if !(playerIndex($en),projVar(-1, $p, attr) = SCA,AA && playerIndex($i),hitDefAttr = SCA,AA) && !(playerIndex($en),projVar(-1, $p, attr) = SCA,AP && playerIndex($i),hitDefAttr = SCA,AP) {
+					if playerIndex($en),projVar(-1, $p, teamside) = playerIndex($i),teamSide || playerIndex($en),projVar(-1, $p, projhits) = 0 || (!(playerIndex($en),projVar(-1, $p, attr) = SCA,AA && playerIndex($i),hitDefAttr = SCA,AA) && !(playerIndex($en),projVar(-1, $p, attr) = SCA,AP && playerIndex($i),hitDefAttr = SCA,AP)) {
 						continue;
 					}
-					if playerIndex($en),projVar(-1, $p, teamside) = playerIndex($i),teamSide || playerIndex($en),projVar(-1, $p, projhits) = 0 {
-						continue;
-					}
+					let projvelx = playerIndex($en),projVar(-1, $p, vel X)*playerIndex($en),projVar(-1, $p, facing);
+					let projvely = playerIndex($en),projVar(-1, $p, vel Y);
+					let handled = 0;
+					modifyProjectile{index: $p; offset: $projvelx,$projvely; redirectid: $enID;}
 					if playerIndex($en),projClsnOverlap($p, $charID, clsn1) {
+						modifyProjectile{index: $p; offset: -$projvelx,-$projvely; redirectid: $enID;}
+						let handled = 1;
 						mapAdd{map: "ZenithClashes"; value: 1; redirectid: $charID;}
 						mapSet{map: "ZenithClashTime"; value: 1; redirectid: $charID;}
 						let pr1 = 0;
@@ -67,25 +70,30 @@ if isHelper(1211920) && root,ID = playerIndex(0),ID {
 							if !$compat {
 								modifyPlayer{moveguarded: 1; redirectid: $charID;}
 							}
-							modifyProjectile{index: $p; projhits: playerIndex($en),projVar(-1, $p, projhits)-1; redirectid: $enID;}
+							let projhits = playerIndex($en),projVar(-1, $p, projhits)-1;
+							if $projhits = 0 {
+								let projhits = -1;
+							}
+							modifyProjectile{index: $p; projhits: $projhits; redirectid: $enID;}
 							if playerIndex($i),map(ZenithClashPoints) > 0 && playerIndex($i),map(ZenithClashesEqPrio) >= playerIndex($i),map(ZenithClashPoints) {
 								modifyHitDef{attr: ; redirectid: $charID;}
 							}
 						} else if $pr1 > $pr2 {
 							mapAdd{map: "ZenithClashesLoPrio"; value: 1; redirectid: $charID;}
-							modifyProjectile{index: $p; projhits: 0; redirectid: $enID;}
+							modifyProjectile{index: $p; projhits: -1; redirectid: $enID;}
 						} else {
 							mapAdd{map: "ZenithClashesHiPrio"; value: 1; redirectid: $charID;}
 							modifyHitDef{attr: ; redirectid: $charID;}
 						}
 					}
+					if !$handled {modifyProjectile{index: $p; offset: -$projvelx,-$projvely; redirectid: $enID;}}
 				}
 			}
-			if $en <= $i || playerIndex($en),map(ZenithNoClash) {
+			if $en <= $i || playerIndex($en),map(ZenithNoClash) || playerIndex($en),reversalDefAttr = SCA,AA,AP,AT {
 				continue;
 			}
 			let enCompat = playerIndex($en),const(Zenith.Clash);
-			let fuckface = (playerIndex($en),isHelper && !$enCompat && playerIndex($en),moveType = A && playerIndex($en),animElemVar(numclsn1) > 0 && playerIndex($en),animElemVar(numclsn2) > 0 && playerIndex($en),hitDefAttr != SCA,AA,AP,AT) || (playerIndex($i),isHelper && !$compat && playerIndex($i),moveType = A && playerIndex($i),animElemVar(numclsn1) > 0 && playerIndex($i),animElemVar(numclsn2) > 0 && playerIndex($i),hitDefAttr != SCA,AA,AP,AT);
+			let fuckface = (playerIndex($en),isHelper && !$enCompat && playerIndex($en),moveType != I && playerIndex($en),animElemVar(numclsn1) > 0 && playerIndex($en),animElemVar(numclsn2) > 0 && playerIndex($en),hitDefAttr != SCA,AA,AP,AT) || (playerIndex($i),isHelper && !$compat && playerIndex($i),moveType != I && playerIndex($i),animElemVar(numclsn1) > 0 && playerIndex($i),animElemVar(numclsn2) > 0 && playerIndex($i),hitDefAttr != SCA,AA,AP,AT);
 			if $fuckface {
 			} else if !(playerIndex($en),hitDefAttr = SCA,AA && ((!playerIndex($i),map(ZenithClash) && playerIndex($i),hitDefAttr = SCA,AA) || playerIndex($i),map(ZenithClashA))) && !(playerIndex($en),hitDefAttr = SCA,AP && ((!playerIndex($i),map(ZenithClash) && playerIndex($i),hitDefAttr = SCA,AP) || playerIndex($i),map(ZenithClashP))) {
 				continue;
