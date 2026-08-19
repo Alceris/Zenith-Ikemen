@@ -23,7 +23,7 @@ ignorehitpause = 1
 type = VarAdd
 trigger1 = !ishelper
 trigger1 = !pausetime
-sysfvar(999) = 0.05/60
+sysfvar(999) = 0.001953125
 ignorehitpause = 1
 
 [State 0, VarAdd]

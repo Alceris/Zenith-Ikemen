@@ -197,7 +197,21 @@ sprpriority = 0
 
 [State 0, CtrlSet]
 type = CtrlSet
+trigger1 = time = 8
+value = 1
+
+[State 0, MapSet]
+type = MapSet
 trigger1 = time = 1
+trigger1 = !ctrl
+map = "CanActionCancel"
+value = 1
+
+[State 0, MapSet]
+type = MapSet
+trigger1 = time = 1
+trigger1 = !ctrl
+map = "CanGuard"
 value = 1
 
 [State 50, ChangeAnim]
