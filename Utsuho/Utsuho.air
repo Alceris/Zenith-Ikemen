@@ -2763,8 +2763,6 @@ LoopStart
 
 ; Fireball Orbiters
 [Begin Action 516]
-Clsn1Default: 1
-  Clsn1[0] = -15,-15,15,15
 511,23, 0,0, 2, , A, 0.25,0.25
 511,23, 0,0, 2, , A, 0.26,0.26
 

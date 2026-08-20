@@ -1942,14 +1942,15 @@ if !time {
 	} else {
 		velSet{x: 0; y: 0;}
 	}
+	map(Charge) := 1;
+}
+
+if command != "holdc" {
+	map(Charge) := 0;
 }
 
 if stateType = A && pos Y >= 0 && vel Y = 0 {
 	changeState{value: 514; ctrl: 0;}
-}
-
-if time = 56 && stateType = A {
-	sysfvar(35) := .25;
 }
 
 velAdd{y: sysfvar(35);}
@@ -1960,6 +1961,9 @@ if vel Y + pos Y >= 0 {
 }
 
 if animElem = 6 {
+	if map(Charge) {
+		changeState{value: 515;}
+	}
 	stateTypeSet{movetype: I;}
 } else if animElem = 7 {
 	map(CanActionCancel) := 1;
@@ -1967,7 +1971,11 @@ if animElem = 6 {
 	helper{id: 510; stateno: 513; pos: cond(stateType = A,15,13),cond(stateType = A,-75,-68.5); postype: p1; facing: 1; ownpal: 1;}
 	helper{id: 511; stateno: 511; pos: cond(stateType = A,15,10),cond(stateType = A,-75,-68.5); postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 6; inheritchannels: 1;}
 	call SpendBorder(200, 60, 50);
-} else if animElem = 9 {map(CanMotionCancel) := 1;}
+} else if animElem = 9 {
+	map(CanMotionCancel) := 1;
+} else if animElem = 15 {
+	sysfvar(35) := .25;
+}
 
 if !animTime {
 	if stateType = A {
@@ -1986,7 +1994,7 @@ anim: 511;
 poweradd: 0;
 velset: 2.5,0;
 ctrl: 0;
-sprpriority: 3;]
+sprpriority: 2;]
 
 ignoreHitPause {
 
@@ -2011,7 +2019,14 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 
 if !time {
 	call HitFactors(0.93, 10, 0, 3, 1);
-	explod{anim: 10510; ID: 10510; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); sprpriority: 3; shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: sub; alpha: 200,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1; syncid: id; synclayer: 1; syncparams: 0;}
+	explod{anim: 10510; ID: 10510; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); sprpriority: 2; shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: sub; alpha: 200,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1; syncid: id; synclayer: 1; syncparams: 0;}
+	if isHelper(512) {
+		let bulletangle = 0;
+		for i = 4; 11; 1 {
+			helper{name: "Orbiter"; id: $i; stateno: 516; pos: vel X,0; postype: P1; ownpal: 1; facing: 1; map.Angle: $bulletangle;}
+			let bulletangle = $bulletangle-45;
+		}
+	}
 }
 
 if time%5 = 0 {
@@ -2083,7 +2098,7 @@ if numExplod(514) > 0 {
 modifyExplod{ID: 10510; trans: sub; alpha: 200+ceil(56*sin(pi*explodvar(10510,0,time)/14.0)),256; sprpriority: sprPriority;}
 
 if !moveContact {
-	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: Heavy; priority: floor(map(BasePriority)),Hit; damage: 40,0; guardpoints: 50; getpower: 30,30; pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; yaccel: 0.25; ground.velocity: -6.25,-7.75; guard.velocity: -6.5; air.velocity: -6.25,-7.75; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; fall: 1; fall.xvelocity: -3.125; fall.recover: 1; fall.recovertime: 45; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+	hitDef{attr: S,NP; hitflag: MAF; guardflag: MA; animtype: Heavy; priority: floor(map(BasePriority)),Hit; damage: 40,0; guardpoints: 50; getpower: 30,30; pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 21; ground.hittime: 21; air.hittime: 21; guard.ctrltime: 21; yaccel: 0.25; ground.velocity: -6.25,-7.75; guard.velocity: -6.5; air.velocity: -6.25,-7.75; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 2; p1getp2facing: 0; fall: 1; fall.xvelocity: -3.125; fall.recover: 1; fall.recovertime: 45; fall.damage: 0; down.bounce: 1; id: 510; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 }
 
 }
@@ -2094,10 +2109,9 @@ velSet{x: min(vel X + 0.5, 15)}
 type: A;
 movetype: I;
 physics: N;
-anim: 511;
 poweradd: 0;
 ctrl: 0;
-sprpriority: 3;]
+sprpriority: 2;]
 
 ignoreHitPause {
 
@@ -2146,6 +2160,41 @@ modifyExplod{ID: 10510; scale: 1.0-(.2*time),1.0-(.2*time); trans: sub; alpha: (
 
 velSet{x: min(vel X + 0.5, 15)}
 
+[StateDef 516; type: S; movetype: A; physics: N; anim: 516; ctrl: 0;]
+
+if !parentExist || parent,stateNo != 511 {
+	destroySelf{removeexplods: 1;}
+}
+
+notHitBy{attr: SCA,AA,AP,AT; time: -1;}
+overrideClsn{group: size; rect: 0,0,0,0;}
+
+if !time {
+	shaderSet{shader: "trans_rights"; time: -1;}
+	fVar(0) := 50;
+} else {
+	map(Angle) := map(Angle)+6;
+}
+
+let trailPosX = pos X;
+let trailPosY = pos Y;
+let radangle = rad(map(Angle));
+let cosangle = 0.25*cos($radangle);
+
+fVar(0) := fVar(0)+2.5;
+
+posSet{x: fVar(0)*$cosangle*facing+parent,pos X; y: fVar(0)*sin($radangle)+parent,pos Y;}
+angleDraw{value: 0; scale: 1.0-$cosangle,1.0-$cosangle;}
+
+overrideClsn{group: clsn1; index: helperVar(ID); rect: -15-parentDist X, -15-parentDist Y, 15-parentDist X, 15-parentDist Y; redirectid: parent,ID;}
+
+sprPriority{value: cond($cosangle >= 0,-3,parent,sprPriority+1);}
+
+let trailPosX = ($trailPosX-pos X)*facing;
+let trailPosY = ($trailPosY-pos Y);
+let trailScale = (($trailPosX**2)+($trailPosY**2))**0.5;
+explod{id: 100991; anim: 100991; pos: 0,0; postype: P1; syncid: id; synclayer: 0; syncparams: 0; bindtime: 0; removetime: 15; scale: 60.0/32.0,$trailScale/192; supermovetime: 0; pausemovetime: 0; shader: "soku_tail"; shadertime: -1; shaderparam.p0: 15; angle: deg(atan2($trailPosX,$trailPosY)); ownpal: 1; reflection: 1;}
+
 [StateDef 514;
 type: S;
 movetype: I;
@@ -2162,6 +2211,51 @@ if !time {
 }
 if !animTime {
 	changeState{value: 0; ctrl: 1;}
+}
+
+[StateDef 515;
+type: U;
+movetype: A;
+physics: N;
+ctrl: 0;
+anim: anim+5;
+sprpriority: 1;]
+
+if !time {
+	call ChargeEffect(2, cond(anim = 715,-65,-58));
+}
+
+if stateType = A && pos Y >= 0 && vel Y = 0 {
+	changeState{value: 514; ctrl: 0;}
+}
+
+velAdd{y: sysfvar(35);}
+
+if vel Y + pos Y >= 0 {
+	posSet{y: 0;}
+	velSet{y: 0;}
+}
+
+if animElem = 5 {
+	stateTypeSet{movetype: I;}
+	map(CanActionCancel) := 1;
+	playSnd{value: S510,0; volumescale: 200;}
+	helper{id: 510; stateno: 513; pos: cond(stateType = A,15,13),cond(stateType = A,-75,-68.5); postype: p1; facing: 1; ownpal: 1;}
+	helper{id: 512; stateno: 511; pos: cond(stateType = A,15,10),cond(stateType = A,-75,-68.5); postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 6; inheritchannels: 1;}
+	call SpendBorder(200, 60, 50);
+} else if animElem = 8 {
+	map(CanMotionCancel) := 1;
+} else if animElem = 13 {
+	sysfvar(35) := .25;
+}
+
+if !animTime {
+	if stateType = A {
+		changeAnim{value: 44; elem: 7;}
+		changeState{value: 50; ctrl: 1;}
+	} else {
+		changeState{value: 0; ctrl: 1;}
+	}
 }
 
 [StateDef 520;

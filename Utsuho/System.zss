@@ -122,6 +122,12 @@ for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
 					if root,helperIndex($h),moveHitVar(frame) && root,helperIndex($h),moveHitVar(playerid) = $charID {
 						let origdamage = round(root,helperIndex($h),hitDefVar(hitdamage)*root,helperIndex($h),attack/player($i),defence, 0);
 						let origdamagecalc = $origdamagecalc+$origdamage;
+						if root,helperIndex($h),isHelper(512) {
+							overrideClsn{redirectid: root,helperIndex($h),ID}
+							if !root,helperIndex($h),clsnOverlap(clsn1, $charID, clsn2) {
+								let origdamage = round(30*root,helperIndex($h),attack/player($i),defence, 0);
+							}
+						}
 						if player($i),map(SokuComboLimit) < 100 {
 							let modifiers = player($i),map(SokuModifierHits);
 							let finaldamagecalc = $finaldamagecalc+round($origdamage*player($i),map(SokuComboRate)*cond($modifiers, cond($modifiers = 3, 0.64, 0.8),1)*lerp(0.7, 1, float(player($i),life-$finaldamagecalc)/player($i),lifeMax), 0);
@@ -256,7 +262,9 @@ for i = 0; numExplod(105401)-1; 1 {
 
 [StateDef -4]
 ignoreHitPause {
-
+if sysVar(4444) = 4 {
+	destroySelf{removeexplods: 1;}
+}
 if !roundState {
 	map(SokuBorderBreaks) := 0;
 	map(SokuBorderBreakRecovery) := 0;
@@ -269,13 +277,11 @@ if enemyNear,name = "Flandre_Scarlet" {
 } else {map(BasePriority) := 4;}
 
 if isHelper(1211920) {
-	if root,numHelper(1211920) > 1 { # This shouldn't be possible, what the fuck
-		destroySelf{}
-	}
 	for i = numPlayer-1; 0; -1 {
 		if playerIndex($i),ID = ID {break;}
 		if playerIndex($i),runOrder > runOrder && !playerIndex($i),isHelper(1211920) {
 			helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1; redirectid: root,ID;}
+			sysVar(4444) := 4;
 			destroySelf{removeexplods: 1;}
 		}
 	}
@@ -491,6 +497,9 @@ if time = 3 {
 type: S; movetype: H; physics: N;
 anim: 9999; ctrl: 0; velset: 0, 0;]
 ignoreHitPause {
+if sysVar(4444) = 4 {
+	destroySelf{removeexplods: 1;}
+}
 
 let rootID = root,ID;
 
@@ -608,6 +617,7 @@ for i = 0; numPlayer - 1; 1 {
 			case 1304:
 				let didhandle = 1;
 				let madehelper = 1;
+				sysVar(9999) := 1;
 				helper{id: 1304; stateno: 1304; pos: root,projVar(-1, $p, pos X)+camerapos X,root,projVar(-1, $p, pos Y); postype: none; facing: root,projVar(-1, $p, facing); ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1; inheritchannels: 1; map.VelX: root,projVar(-1, $p, vel X); map.VelY: root,projVar(-1, $p, vel Y); map.RemoveTime: root,projVar(-1, $p, projremovetime)-12; redirectid: $rootID;}
 				changeAnim{value: root,projVar(-1, $p, anim); elem: root,projVar(-1, $p, animelem); redirectid: lastPlayerID;}
 				notHitBy{value: SCA,AA,AP,AT; time: -1; redirectid: lastPlayerID;}
@@ -618,6 +628,11 @@ for i = 0; numPlayer - 1; 1 {
 			continue;
 		}
 		modifyProjectile{index: $p; offset: -$projvelx,-$projvely; redirectid: $rootID;}
+	}
+	if $madehelper {
+		helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1; redirectid: $rootID;}
+		sysVar(4444) := 4;
+		destroySelf{removeexplods: 1;}
 	}
 	if root,map(IsSokuGrazing) {
 		for p = 0; playerIndex($i),numProj-1; 1 {
@@ -718,14 +733,15 @@ if !root,spriteVar(height) {
 	changeAnim{value: 0; redirectid: $rootID;}
 }
 
-if $madehelper {
-	helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1; redirectid: $rootID;}
+}
+
+[StateDef +1]
+if sysVar(4444) = 4 {
 	destroySelf{removeexplods: 1;}
 }
 
 }
 
-[StateDef +1]
 if !pauseTime {
 
 if map(GrazeTime) > 0 {
