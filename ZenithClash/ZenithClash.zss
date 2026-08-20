@@ -1,11 +1,15 @@
 [StateDef -4]
 ignoreHitPause {
+if sysVar(4444) = 4 {
+	destroySelf{removeexplods: 1;}
+}
 
 if isHelper(1211920) {
 	for i = numPlayer-1; 0; -1 {
 		if playerIndex($i),ID = ID {break;}
 		if playerIndex($i),runOrder > runOrder && !playerIndex($i),isHelper(1211920) {
 			helper{name: "PostUpdate"; id: 1211920; stateno: 1211920; supermovetime: -1; pausemovetime: -1; redirectid: root,ID;}
+			sysVar(4444) := 4;
 			destroySelf{}
 		}
 	}
@@ -19,6 +23,9 @@ if ID = playerIndex(0),ID && numHelper(1211920) = 0 {helper{name: "PostUpdate"; 
 ignoreHitPause {
 
 if isHelper(1211920) && root,ID = playerIndex(0),ID {
+if sysVar(4444) = 4 {
+	destroySelf{removeexplods: 1;}
+}
 	for i = 0; numPlayer - 1; 1 {
 		let charID = playerIndex($i),ID; # Store this in a local variable so we don't have to go through the redirect every time we need the ID.
 		if playerIndex($i),isAsserted(playerpush) {
@@ -195,6 +202,9 @@ if isHelper(1211920) && root,ID = playerIndex(0),ID {
 type: S; movetype: H; physics: N;
 anim: 9999; ctrl: 0; velset: 0, 0;]
 ignoreHitPause {
+if sysVar(4444) = 4 {
+	destroySelf{removeexplods: 1;}
+}
 
 assertSpecial{flag: RunLast; flag2: Invisible;}
 notHitBy{attr: SCA,AA,AP,AT; time: -1;}
