@@ -936,6 +936,7 @@ angleDraw{value: 0; scale: 0.98**time,0.98**time;}
 type: S;
 movetype: A;
 physics: N;
+anim: cond(pos Y < 0, 1320, 1300);
 ctrl: 0;
 sprpriority: 1;]
 
@@ -957,7 +958,7 @@ if (map(Charge) = 1 && command != "holdb") || (map(Charge) = 2 && command != "ho
 }
 
 if animElem = 3 {
-	helper{id: 1300; stateno: 1302; pos: cond(anim = 1310 || anim = 1330,27,19),cond(anim = 1310 || anim = 1330,-85,-147); postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.bindposx: cond(anim = 1310 || anim = 1330,27,19); map.bindposy: cond(anim = 1310 || anim = 1330,-85,-147); inheritchannels: 1;}
+	helper{id: 1300; stateno: 1302; pos: 19,-147; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 99; map.bindposx: 19; map.bindposy: -147; inheritchannels: 1;}
 	call SpendBorder(200, 120, 50);
 }
 
@@ -1015,7 +1016,7 @@ if vel Y + pos Y >= 0 {
 
 [StateDef 1302;
 type: S;
-movetype: H;
+movetype: A;
 physics: N;
 anim: 1302;
 poweradd: 0;
@@ -1023,6 +1024,8 @@ ctrl: 0;
 sprpriority: 3;]
 
 ignoreHitPause {
+
+assertSpecial{flag: RunLast;}
 
 if moveHitVar(frame) && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(playerid)),isHelper) {
 	if moveHit {
@@ -1071,6 +1074,11 @@ if time%3 = 0 {
 	let edist = randomRange(2500,20000)/100.0;
 	explod{anim: 1307; ID: 1307; pos: 0,0; friction: $escale,$eangle,$edist; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; pausemovetime: 0; scale: 1,1; sprpriority: 5; ontop: 0; shadow: 0,0,0; trans: add; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; removeonchangestate: 1; ignorehitpause: 1;}
 }
+if (anim = 1303 && time%7 = 5) || (anim = 1304 && time%4 = 1) {
+	let eangle = rad(randomRange(0, 35999)/100.0);
+	let edist = randomRange(2500,20000)/100.0;
+	explod{anim: 1308; ID: 1308; pos: 0,0; friction: 1,$eangle,$edist; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; pausemovetime: 0; scale: 1,1; angle: 180-deg($eangle); sprpriority: 5; ontop: 0; shadow: 0,0,0; trans: add; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; removeonchangestate: 1; ignorehitpause: 1;}
+}
 
 ignoreHitPause for i = 0; numExplod(1307)-1; 1 {
 	let escale = explodVar(1307, $i, friction X)*0.99;
@@ -1086,37 +1094,76 @@ ignoreHitPause for i = 0; numExplod(1307)-1; 1 {
 	}
 }
 
-if time = 40 {
+ignoreHitPause for i = 0; numExplod(1308)-1; 1 {
+	let escale = explodVar(1308, $i, friction X)*0.96;
+	let eangle = explodVar(1308, $i, friction Y);
+	let edist = explodVar(1308, $i, friction Z)*0.95;
+	modifyExplod{id: 1308; index: $i; scale: $escale,1; pos: cos($eangle)*$edist,sin($eangle)*$edist; friction: $escale,$eangle,$edist;}
+	if $edist < 15 && explodVar(1308, $i, removetime) < 0 {
+		modifyExplod{id: 1308; index: $i; removetime: 25;}
+	}
+	let ert = explodVar(1308, $i, removetime);
+	if $ert >= 0 {
+		modifyExplod{id: 1308; index: $i; trans: add; alpha: (256/25.0)*($ert-explodVar(1308, $i, time)),256}
+	}
+}
+
+if time = 25 {
 	changeAnim{value: 1303}
-} else if time = 101 {
+	explod{anim: 1309; ID: 1309; pos: 0,0; friction: randomRange(6,9)/100.0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; removetime: -2; pausemovetime: 0; scale: 1,1; sprpriority: 5; ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
+} else if time = 56 {
 	changeAnim{value: 1304}
+	explod{anim: 1309; ID: 1309; pos: 0,0; friction: randomRange(6,9)*2/100.0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; removetime: -2; pausemovetime: 0; scale: 2,2; sprpriority: 5; ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
 }
 
 if root,stateNo = 1301 {
 	changeState{value: 1303}
-} else if map(ZenithClashPoints) <= 0 || root,stateNo != 1300 || root,inCustomState {
+} else if root,stateNo != 1300 || root,inCustomState {
 	destroySelf{removeexplods: 1;}
 }
-
+for i = 0; numExplod(1309)-1; 1 {
+	let escaleadd = explodVar(1309, $i, friction X)*0.95;
+	let escale = explodVar(1309, $i, scale X)+$escaleadd;
+	modifyExplod{id: 1309; index: $i; scale: $escale,$escale; friction: $escaleadd;}
+}
 if !moveContact && map(ZenithClashPoints) {
 	hitDef{attr: S,SP; hitflag: MAF; guardflag: MA; animtype: Heavy; priority: floor(map(BasePriority)),Hit; damage: 20,5; guardpoints: 50; getpower: 10,10; pausetime: 0,5; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 24; ground.hittime: 24; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.25; ground.velocity: -0.5,-7.5; guard.velocity: -6.5; air.velocity: -0.5,-7.5; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: sprPriority; p1getp2facing: 0; fall: 1; fall.xvelocity: -0.25; fall.recover: 1; fall.recovertime: 65; fall.damage: 0; down.bounce: 1; id: 1300; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+} else if !map(ZenithClashPoints) {
+	hitDef{attr:;}
 }
 
 [StateDef 1303;
 type: S;
-movetype: H;
+movetype: A;
 physics: N;
 poweradd: 0;
 ctrl: 0;
 sprpriority: 3;]
 
+let rootID = root,ID;
+assertSpecial{flag: RunLast;}
+
 if !time {
 	let removetime = cond(anim = 1302,40,cond(anim = 1303,60,90));
 	let bulletangle = 0;
+	if anim = 1302 {
+		explod{anim: 1309; ID: 1309; pos: 0,0; friction: randomRange(2,9)/100.0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; removetime: -2; pausemovetime: 0; scale: 1,1; sprpriority: 5; ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
+		fVar(0) := 1;
+	} else if anim = 1303 {
+		explod{anim: 1309; ID: 1309; pos: 0,0; friction: randomRange(2,9)*2/100.0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; removetime: -2; pausemovetime: 0; scale: 2,2; sprpriority: 5; ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
+		explod{anim: 1309; ID: 1309; pos: 0,0; friction: randomRange(2,9)*2/100.0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; removetime: -2; pausemovetime: 0; scale: 2,2; angle: randomRange(0,35999)/100.0; xangle: randomRange(-4500,4500)/100.0; yangle: randomRange(-4500,4500)/100.0; sprpriority: 5; ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
+		fVar(0) := 2;
+	} else if anim = 1304 {
+		explod{anim: 1309; ID: 1309; pos: 0,0; friction: randomRange(2,9)*3/100.0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; removetime: -2; pausemovetime: 0; scale: 3,3; sprpriority: 5; ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
+		for i = 0; 2; 1 {
+			explod{anim: 1309; ID: 1309; pos: 0,0; friction: randomRange(2,9)*3/100.0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; removetime: -2; pausemovetime: 0; scale: 3,3; angle: randomRange(0,35999)/100.0; xangle: randomRange(-4500,4500)/100.0; yangle: randomRange(-4500,4500)/100.0; sprpriority: 5; ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
+		}
+		fVar(0) := 3;
+	}
 	for i = 0; 23; 1 {
 		#helper{id: 1304; stateno: 1304; pos: pos X+camerapos X,pos Y+groundlevel; postype: none; facing: facing; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1; inheritchannels: 1; map.Angle: $bulletangle; map.Speed: 0.5; map.RemoveTime: $removetime; redirectid: root,id;}
 		let bulletdir = rad($bulletangle);
-		projectile{projid: 1304; projanim: 1305; projhitanim: 1306; projremanim: 1306; projcancelanim: 1306; projscale: 1,1; projremove: 1; projremovetime: $removetime+12; velocity: 0.5*cos($bulletdir),0.5*sin($bulletdir); remvelocity: 0,0; accel: 0.25*cos($bulletdir),0.25*sin($bulletdir); projhits: 1; projmisstime: 0; projpriority: 3; projsprpriority: 3; projedgebound: 1000000; projstagebound: 1000000; projheightbound: -1000000,1000000; offset: 0,0; postype: P1; projshadow: 0,0,0; projreflection: 1; supermovetime: 0; pausemovetime: 0; attr: S,SP; hitflag:;}
+		projectile{projid: 1304; projanim: 1305; projhitanim: 1306; projremanim: 1306; projcancelanim: 1306; projscale: 1,1; projremove: 1; projremovetime: $removetime+12; velocity: 0.5*cos($bulletdir),0.5*sin($bulletdir); remvelocity: 0,0; accel: 0.25*cos($bulletdir),0.25*sin($bulletdir); projhits: 1; projmisstime: 0; projpriority: floor(map(BasePriority)-1); projsprpriority: 3; projedgebound: 1000000; projstagebound: 1000000; projheightbound: -1000000,1000000; offset: 0,0; postype: P1; projshadow: 0,0,0; projreflection: 1; supermovetime: 0; pausemovetime: 0; attr: S,SP; hitflag:;}
 		let bulletangle = $bulletangle+15;
 	}
 	if anim > 1302 {
@@ -1124,7 +1171,7 @@ if !time {
 		for i = 0; 23; 1 {
 			#helper{id: 1304; stateno: 1304; pos: pos X+camerapos X,pos Y+groundlevel; postype: none; facing: facing; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1; inheritchannels: 1; map.Angle: $bulletangle; map.Speed: 2.5; map.RemoveTime: $removetime; redirectid: root,id;}
 			let bulletdir = rad($bulletangle);
-			projectile{projid: 1304; projanim: 1305; projhitanim: 1306; projremanim: 1306; projcancelanim: 1306; projscale: 1,1; projremove: 1; projremovetime: $removetime+12; velocity: 2.5*cos($bulletdir),2.5*sin($bulletdir); remvelocity: 0,0; accel: 0.25*cos($bulletdir),0.25*sin($bulletdir); projhits: 1; projmisstime: 0; projpriority: 3; projsprpriority: 3; projedgebound: 1000000; projstagebound: 1000000; projheightbound: -1000000,1000000; offset: 0,0; postype: P1; projshadow: 0,0,0; projreflection: 1; supermovetime: 0; pausemovetime: 0; attr: S,SP; hitflag:;}
+			projectile{projid: 1304; projanim: 1305; projhitanim: 1306; projremanim: 1306; projcancelanim: 1306; projscale: 1,1; projremove: 1; projremovetime: $removetime+12; velocity: 2.5*cos($bulletdir),2.5*sin($bulletdir); remvelocity: 0,0; accel: 0.25*cos($bulletdir),0.25*sin($bulletdir); projhits: 1; projmisstime: 0; projpriority: floor(map(BasePriority)-1); projsprpriority: 3; projedgebound: 1000000; projstagebound: 1000000; projheightbound: -1000000,1000000; offset: 0,0; postype: P1; projshadow: 0,0,0; projreflection: 1; supermovetime: 0; pausemovetime: 0; attr: S,SP; hitflag:;}
 			let bulletangle = $bulletangle+15;
 		}
 	}
@@ -1133,13 +1180,44 @@ if !time {
 		for i = 0; 23; 1 {
 			#helper{id: 1304; stateno: 1304; pos: pos X+camerapos X,pos Y+groundlevel; postype: none; facing: facing; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1; inheritchannels: 1; map.Angle: $bulletangle; map.Speed: 4.5; map.RemoveTime: $removetime; redirectid: root,id;}
 			let bulletdir = rad($bulletangle);
-			projectile{projid: 1304; projanim: 1305; projhitanim: 1306; projremanim: 1306; projcancelanim: 1306; projscale: 1,1; projremove: 1; projremovetime: $removetime+12; velocity: 4.5*cos($bulletdir),4.5*sin($bulletdir); remvelocity: 0,0; accel: 0.25*cos($bulletdir),0.25*sin($bulletdir); projhits: 1; projmisstime: 0; projpriority: 3; projsprpriority: 3; projedgebound: 1000000; projstagebound: 1000000; projheightbound: -1000000,1000000; offset: 0,0; postype: P1; projshadow: 0,0,0; projreflection: 1; supermovetime: 0; pausemovetime: 0; attr: S,SP; hitflag:;}
+			projectile{projid: 1304; projanim: 1305; projhitanim: 1306; projremanim: 1306; projcancelanim: 1306; projscale: 1,1; projremove: 1; projremovetime: $removetime+12; velocity: 4.5*cos($bulletdir),4.5*sin($bulletdir); remvelocity: 0,0; accel: 0.25*cos($bulletdir),0.25*sin($bulletdir); projhits: 1; projmisstime: 0; projpriority: floor(map(BasePriority)-1); projsprpriority: 3; projedgebound: 1000000; projstagebound: 1000000; projheightbound: -1000000,1000000; offset: 0,0; postype: P1; projshadow: 0,0,0; projreflection: 1; supermovetime: 0; pausemovetime: 0; attr: S,SP; hitflag:;}
 			let bulletangle = $bulletangle+15;
 		}
 	}
-	changeAnim{value: 9999;}
+	changeAnim{value: 1310;}
 }
-if !numExplod {destroySelf{}}
+for i = 0; numPlayer-1; 1 {
+	let charID = playerIndex($i),ID;
+	for p = root,numProj-1; 0; -1 {
+		if root,numHelper >= $rootID-4 {
+			break;
+		}
+		if root,projVar(-1, $p, projid) != 1304 {
+			continue;
+		}
+		let projvelx = root,projVar(-1, $p, vel X)*root,projVar(-1, $p, facing);
+		let projvely = root,projVar(-1, $p, vel Y);
+		modifyProjectile{index: $p; offset: $projvelx,$projvely; redirectid: $rootID;}
+		if root,projVar(-1, $p, projhits) > 0 && playerIndex($i),teamSide != root,projVar(-1, $p, teamside) && root,projClsnOverlap($p, $charID, clsn2) {
+			modifyProjectile{index: $p; offset: -$projvelx,-$projvely; redirectid: $rootID;}
+			helper{id: 1304; stateno: 1304; pos: root,projVar(-1, $p, pos X)+camerapos X,root,projVar(-1, $p, pos Y); postype: none; facing: root,projVar(-1, $p, facing); ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1; inheritchannels: 1; map.VelX: root,projVar(-1, $p, vel X); map.VelY: root,projVar(-1, $p, vel Y); map.RemoveTime: root,projVar(-1, $p, projremovetime)-12; redirectid: $rootID;}
+			changeAnim{value: root,projVar(-1, $p, anim); elem: root,projVar(-1, $p, animelem); redirectid: lastPlayerID;}
+			notHitBy{value: SCA,AA,AP,AT; time: -1; redirectid: lastPlayerID;}
+			modifyProjectile{index: $p; projid: -1; redirectid: $rootID;}
+			continue;
+		}
+		modifyProjectile{index: $p; offset: -$projvelx,-$projvely; redirectid: $rootID;}
+	}
+}
+fVar(0) := 0.95*fVar(0);
+angleDraw{value: 0; scale: fVar(0),fVar(0);}
+trans{trans: add; alpha: lerp(256,0,float(time+1)/17),256}
+for i = 0; numExplod(1309)-1; 1 {
+	let escaleadd = explodVar(1309, $i, friction X)*0.95;
+	let escale = explodVar(1309, $i, scale X)+$escaleadd;
+	modifyExplod{id: 1309; index: $i; scale: $escale,$escale; friction: $escaleadd;}
+}
+if time > 16 && !numExplod && !root,numProjID(1304) {destroySelf{}}
 
 [StateDef 1304;
 type: S;

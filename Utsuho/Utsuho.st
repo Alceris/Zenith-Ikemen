@@ -5,7 +5,7 @@ physics = N
 velset = 0,0
 anim = 512
 ctrl = 0
-sprpriority = 3
+sprpriority = 2
 
 [State 0, VarSet]
 type = VarSet
