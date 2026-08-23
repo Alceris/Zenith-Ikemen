@@ -1534,7 +1534,7 @@ sprpriority: 3;]
 
 ignoreHitPause {
 
-if moveHitVar(frame) && (!map(ZenithClashNonCompat) || hasHit(enemyNear,ID)) {
+if moveHitVar(frame) && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(playerid)),isHelper) {
 	if moveHit {
 		playSnd{value: S0,2; volumescale: 100; channel: 2;}
 	}
@@ -1588,7 +1588,7 @@ if map(ZenithClashesHiPrio) > 0 || map(GrazedTime) > 5 {
 }
 
 var(0) := (abs(pos X) > gameWidth || screenPos Y+cameraPos Y > gameHeight*2 || screenPos Y < -gameHeight);
-if var(0) || map(ZenithClashPoints) <= 0 || (moveContact && (!map(ZenithClashNonCompat) || hasHit(enemyNear,ID))) || (root,movetype = H && !root,getHitVar(guarded)) || root,inCustomState {
+if var(0) || map(ZenithClashPoints) <= 0 || (moveContact && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(playerid)),isHelper)) || (root,movetype = H && !root,getHitVar(guarded)) || root,inCustomState {
 	changeState{value: 502;}
 }
 
@@ -1998,7 +1998,7 @@ sprpriority: 2;]
 
 ignoreHitPause {
 
-if moveHitVar(frame) && (!map(ZenithClashNonCompat) || hasHit(enemyNear,ID)) {
+if moveHitVar(frame) && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(playerid)),isHelper) {
 	if moveHit {
 		playSnd{value: S0,2; volumescale: 100; channel: 2;}
 	}
@@ -2052,14 +2052,14 @@ if map(ZenithClashesHiPrio) > 0 {
 	}
 }
 
-if moveContact && (!map(ZenithClashNonCompat) || HasHit(enemynear,ID)) {
+if moveContact && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(playerid)),isHelper) {
 	if !var(0) {
 		mapAdd{map: "ZenithClashPoints"; value: -1;}
 	}
 	var(0) := var(0)+1;
 }
 
-if var(0) = 3+(map(ZenithClashPoints) = 5) || (!var(0) && map(ZenithClashNonCompat) && !HasHit(enemynear,ID)) {
+if var(0) = 3+(map(ZenithClashPoints) = 5) || (!var(0) && map(ZenithClashNonCompat) && playerId(moveHitVar(playerid)),isHelper) {
 	var(0) := 0;
 	moveHitReset{}
 }
@@ -2339,7 +2339,7 @@ if !time {
 	explod{anim: 523; ID: 523; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: -1; removetime: -1; scale: const(size.xscale),const(size.yscale); shader: "trans_rights"; shadertime: -1; shadow: 0,0,0; reflection: 1; trans: add; alpha: 256,256; ownpal: 1; removeongethit: 0; ignorehitpause: 1; syncid: id; synclayer: 1; syncparams: 0;}
 }
 
-if moveHitVar(frame) && (!map(ZenithClashNonCompat) || hasHit(enemyNear,ID)) {
+if moveHitVar(frame) && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(playerid)),isHelper) {
 	if moveHit {
 		playSnd{value: S0,2; volumescale: 100; channel: 2;}
 	}
@@ -2358,13 +2358,13 @@ if map(ZenithClashesHiPrio) > 0 {
 } else if map(ZenithClashesEqPrio) > 0 {
 	mapAdd{map: "ZenithClashPoints"; value: -map(ZenithClashesEqPrio);}
 }
-if moveContact && (!map(ZenithClashNonCompat) || HasHit(enemynear,ID)) {
+if moveContact && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(playerid)),isHelper) {
 	if !var(0) {
 		mapAdd{map: "ZenithClashPoints"; value: -1;}
 	}
 	var(0) := var(0)+1;
 }
-if var(0) = 3 || (!var(0) && map(ZenithClashNonCompat) && !HasHit(enemynear,ID)) {
+if var(0) = 3 || (!var(0) && map(ZenithClashNonCompat) && playerId(moveHitVar(playerid)),isHelper) {
 	var(0) := 0;
 	moveHitReset{}
 }
