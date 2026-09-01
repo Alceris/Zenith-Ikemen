@@ -9,12 +9,13 @@ guardPointsAdd{value: -$Cost;}
 map(_iksys_guardPointsTimer) := max(map(_iksys_guardPointsTimer),$Cooldown);
 powerAdd{value: $Power;}
 
-[Function HitFactors(Proration, LimitGain, Friction, Effect, ComboModifiers)]
+[Function HitFactors(Proration, LimitGain, Friction, Effect, ComboModifiers, CounterHit)]
 map(Proration) := $Proration;
 map(LimitGain) := $LimitGain;
 map(SokuHitFriction) := $Friction;
 map(SokuHitEffect) := $Effect;
 map(SokuComboModifiers) := $ComboModifiers; # 1 = Lift Attack, 2 = Smash Attack, 3 = Both
+map(SokuCanCounterHit) := $CounterHit;
 
 [StateDef 1000;
 type: S;
@@ -81,7 +82,7 @@ if !time {
 	explod{anim: 1003; ID: 1003; pos: 0,0; postype: p1; facing: 1; bindtime: -1; removetime: -1; pausemovetime: 0; palfx.time: -1; sprpriority: 3; shadow: 0,0,0; ownpal: 1; ignorehitpause: 1;}
 	explod{anim: 1004; ID: 1004; pos: 0,0; postype: p1; facing: 1; bindtime: -1; removetime: -1; pausemovetime: 0; palfx.time: -1; sprpriority: 3; shadow: 0,0,0; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
 } else {
-	if time = 26 || (root,moveType = H && !root,getHitVar(guarded)) {
+	if time = 26 || root,stateNo != 1000 {
 		changeState{value: 1002;}
 	}
 	fVar(0) := fVar(0)*0.9;
@@ -195,7 +196,7 @@ if moveContact && moveHitVar(frame) && (!map(ZenithClashNonCompat) || !playerId(
 	mapAdd{map: "ZenithClashPoints"; value: -1;}
 }
 
-if (root,moveType = H && !root,getHitVar(guarded)) {
+if root,moveType = H && !root,getHitVar(guarded) {
 	if !numExplod(1006) {
 		destroySelf{}
 	} else {
@@ -207,7 +208,7 @@ if animElemTime(21) >= 0 && !numExplod(1006) {
 } else if animElem = 2 {
 	shaderSet{shader: "trans_rights"; time: -1;}
 	stateTypeSet{movetype: A;}
-	call HitFactors(0.95, 10, 0, 4, 2);
+	call HitFactors(0.95, 10, 0, 4, 2, 1);
 	map(SokuHitType) := 1;
 	explod{id: 1007; anim: 1007; pos: 0,0; postype: P1; sprpriority: 0; bindtime: 0; facing: 1; removetime: -2; ownpal: 1; xangle: -80; shader: "trans_rights"; shadertime: -1;}
 	let eangle = randomRange(0,35999)/100.0;
@@ -227,6 +228,7 @@ for i = 0; numExplod(1006) - 1; 1 {
 if !moveContact && animElemTime(2) >= 0 {
 	hitDef{attr: S, SP;
 	damage: 40,10;
+	guard.kill: 0;
 	hitonce: enemynear,name != "Dragon Tank";
 	animtype: Up;
 	guardflag: MA;
@@ -316,7 +318,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 if !time {
 	map(SokuHitType) := 1;
 	shaderSet{shader: "trans_rights"; time: -1;}
-	call HitFactors(0.95, 10, 0, 3, 1);
+	call HitFactors(0.95, 10, 0, 3, 1, 1);
 	fVar(0) := 8.25;
 	fVar(1) := 0.15;
 }
@@ -359,7 +361,7 @@ if var(0) = 10 || (!var(0) && map(ZenithClashNonCompat) && playerId(moveHitVar(p
 
 if time%4 = 0 {
 	let escale = randomrange(50,100)/100.0;
-	let eangle = randomrange(-18000,18000)/100.0;
+	let eangle = randomrange(0,35999)/100.0;
 	explod{anim: 1105; ID: 1105; pos: randomrange(-1000,1000)/100.0,randomrange(-1000,1000)/100.0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; removetime: 30; pausemovetime: 0; scale: const(size.xscale)*$escale,const(size.yscale)*$escale; angle: $eangle; interpolation.time: 30; interpolation.scale: const(size.xscale)*$escale*1.7,const(size.yscale)*$escale*1.7; sprpriority: sprpriority+1; ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; removeongethit: 0; ignorehitpause: 1;}
 }
 
@@ -453,7 +455,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 if !time {
 	map(SokuHitType) := 1;
 	shaderSet{shader: "trans_rights"; time: -1;}
-	call HitFactors(0.95, 10, 0, 3, 1);
+	call HitFactors(0.95, 10, 0, 3, 1, 1);
 	fVar(0) := 6.25;
 	fVar(1) := 0.23;
 }
@@ -496,7 +498,7 @@ if var(0) = 10 || (!var(0) && map(ZenithClashNonCompat) && playerId(moveHitVar(p
 
 if time%4 = 0 {
 	let escale = randomrange(50,100)/100.0;
-	let eangle = randomrange(-18000,18000)/100.0;
+	let eangle = randomrange(0,35999)/100.0;
 	explod{anim: 1105; ID: 1105; pos: randomrange(-1000,1000)/100.0,randomrange(-1000,1000)/100.0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; removetime: 30; pausemovetime: 0; scale: const(size.xscale)*$escale,const(size.yscale)*$escale; angle: $eangle; interpolation.time: 30; interpolation.scale: const(size.xscale)*$escale*1.7,const(size.yscale)*$escale*1.7; sprpriority: sprpriority+1; ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; removeongethit: 0; ignorehitpause: 1;}
 }
 
@@ -517,7 +519,7 @@ ctrl: 0;
 sprpriority: 3;]
 
 if !animTime {
-	angleSet{value: randomRange(-18000,18000)/100.0;}
+	angleSet{value: randomRange(0,35999)/100.0;}
 }
 
 ignoreHitPause {
@@ -542,7 +544,7 @@ overrideClsn{group: size; index: -1; rect: 0, 0, 0, 0;}
 if !time {
 	map(SokuHitType) := 1;
 	shaderSet{shader: "trans_rights"; time: -1;}
-	call HitFactors(0.96, 2, 0, 3, 1);
+	call HitFactors(0.96, 2, 0, 3, 1, 1);
 }
 
 if map(ZenithClashesHiPrio) > 0 {
@@ -594,7 +596,7 @@ ctrl: 0;
 sprpriority: 3;]
 
 if !animTime {
-	angleSet{value: randomRange(-18000,18000)/100.0;}
+	angleSet{value: randomRange(0,35999)/100.0;}
 }
 angleDraw{scale: lerp(1,0.38,time/19.0),lerp(1,0.38,time/19.0);}
 trans{trans: add; alpha: lerp(256,0,time/19.0),256;}
@@ -669,7 +671,7 @@ if !time {
 	if ((anim = 1200 || anim = 1203) && command != "holdb") || ((anim = 1201 || anim = 1204) && command != "holdc") {map(Charge) := 0;}
 	fVar(10) := fVar(10)*0.93;
 	fVar(11) := fVar(11)*0.85;
-	if anim > 1201 && fVar(11) < 1 {
+	if (anim > 1201 || const(Mugensoku.Utsuho.BetterShootingStar)) && fVar(11) < 1 {
 		fVar(11) := 1;
 	}
 	if time > 9 {
@@ -753,8 +755,11 @@ poweradd: 0;
 ctrl: 0;
 sprpriority: 1;]
 
+if animElem = 3 && const(Mugensoku.Utsuho.BetterShootingStar) {
+	changeAnim{value: anim; elem: 6;}
+}
 if animElem = 6 {
-	fVar(10) := cond(const(Mugensoku.Utsuho.BetterShootingStar) && p2Dist Y+p2,vel Y > 0,-70,70);
+	fVar(10) := 70;#cond(const(Mugensoku.Utsuho.BetterShootingStar) && p2Dist Y+p2,vel Y > 0,-70,70);
 	changeState{value: 1201; ctrl: 0;}
 }
 
@@ -813,13 +818,13 @@ anim: 1206;
 ctrl: 0;
 sprpriority: 2;]
 
-if root,moveType = H || root,inCustomState {
+if root,moveType = H && !root,getHitVar(guarded) {
 	destroySelf{}
 }
 
 if !time {
 	shaderSet{shader: "trans_rights"; time: -1;}
-} else if time > cond(const(Mugensoku.Utsuho.BetterShootingStar),10,30) {
+} else if time > cond(const(Mugensoku.Utsuho.BetterShootingStar),12,30) {
 	changeState{value: 1208;}
 }
 
@@ -832,8 +837,12 @@ anim: 1207;
 ctrl: 0;
 sprpriority: 2;]
 
+if root,moveType = H && !root,getHitVar(guarded) {
+	destroySelf{removeexplods: 1}
+}
+
 if !time {
-	call HitFactors(0.93, 5, 0.75, 2, 0);
+	call HitFactors(0.93, 5, 0.75, 2, 0, 0);
 	shaderSet{shader: "trans_rights"; time: -1;}
 	fVar(0) := 1;
 	playSnd{value: S1200,2; volumescale: 200; channel: 12;}
@@ -870,7 +879,7 @@ if map(ZenithClashesHiPrio) > 0 {
 	mapAdd{map: "ZenithClashPoints"; value: -map(ZenithClashesEqPrio);}
 }
 
-if moveContact && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(playerid)),isHelper) || map(GotGrazed) || !map(ZenithClashPoints) {
+if moveContact && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(playerid)),isHelper) || map(GotGrazed) || moveReversed || !map(ZenithClashPoints) {
 	changeState{value: 1209;}
 }
 
@@ -886,7 +895,7 @@ if numExplod(1209) {
 	modifyExplod{id: 1209; scale: 1+$escale,1+$escale; friction: $escale+$fy,$fy,0;}
 }
 
-hitDef{attr: S,SP; hitflag: MAF; guardflag: MA; animtype: Medium; priority: floor(map(BasePriority))-1,Hit; damage: 20,5; guardpoints: 50; getpower: 20,20; pausetime: 0,0; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 17; ground.hittime: 17; air.hittime: 20; guard.ctrltime: 15; yaccel: 0.25; ground.velocity: -7.5; guard.velocity: -5; air.velocity: -3,-6; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; air.fall: 1; fall.xvelocity: -1.5; fall.recover: 1; fall.recovertime: 25; fall.damage: 0; down.bounce: 1; id: 1200; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+hitDef{attr: S,SP; hitflag: MAF; guardflag: MA; animtype: Medium; priority: floor(map(BasePriority))-1,Hit; damage: 20,5; guardpoints: 50; getpower: 20,20; pausetime: 0,0; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 17; ground.hittime: 17; air.hittime: 20; guard.ctrltime: 15; yaccel: 0.5; ground.velocity: -7.5; guard.velocity: -5; air.velocity: -3,-6; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 3; p1getp2facing: 0; air.fall: 1; fall.xvelocity: -1.5; fall.recover: 1; fall.recovertime: 25; fall.damage: 0; down.bounce: 1; id: 1200; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 
 }
 
@@ -1046,7 +1055,8 @@ if !time {
 	changeAnim{value: 1302; elem: 1; elemtime: 1;}
 	map(SokuHitType) := 0;
 	shaderSet{shader: "trans_rights"; time: -1;}
-	call HitFactors(0.98, 5, 0, 3, 1);
+	call HitFactors(0.98, 5, 0, 3, 1, 1);
+	map(GrazeCost) := 4;
 }
 
 if map(ZenithClashesHiPrio) > 0 {
@@ -1127,7 +1137,7 @@ for i = 0; numExplod(1309)-1; 1 {
 	modifyExplod{id: 1309; index: $i; scale: $escale,$escale; friction: $escaleadd;}
 }
 if !moveContact && map(ZenithClashPoints) {
-	hitDef{attr: S,SP; hitflag: MAF; guardflag: MA; animtype: Heavy; priority: floor(map(BasePriority)),Hit; damage: 20,5; guardpoints: 50; getpower: 10,10; pausetime: 0,5; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 24; ground.hittime: 24; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.25; ground.velocity: -0.5,-7.5; guard.velocity: -6.5; air.velocity: -0.5,-7.5; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: sprPriority; p1getp2facing: 0; fall: 1; fall.xvelocity: -0.25; fall.recover: 1; fall.recovertime: 65; fall.damage: 0; down.bounce: 1; id: 1300; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+	hitDef{attr: S,SP; hitflag: MAF; guardflag: MA; animtype: Heavy; priority: floor(map(BasePriority)),Hit; damage: 20,5; guardpoints: 50; getpower: 10,10; pausetime: 0,5; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: High; ground.slidetime: 24; ground.hittime: 24; air.hittime: 21; guard.ctrltime: 21; airguard.ctrltime: 19; yaccel: 0.5; ground.velocity: -0.5,-7.5; guard.velocity: -6.5; air.velocity: -0.5,-7.5; airguard.velocity: -3,-6; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: sprPriority; p1getp2facing: 0; fall: 1; fall.xvelocity: -0.25; fall.recover: 1; fall.recovertime: 65; fall.damage: 0; down.bounce: 1; id: 1300; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 } else if !map(ZenithClashPoints) {
 	hitDef{attr:;}
 }
@@ -1186,6 +1196,7 @@ if !time {
 	}
 	changeAnim{value: 1310;}
 }
+
 for i = 0; numPlayer-1; 1 {
 	let charID = playerIndex($i),ID;
 	for p = root,numProj-1; 0; -1 {
@@ -1208,6 +1219,12 @@ for i = 0; numPlayer-1; 1 {
 		}
 		modifyProjectile{index: $p; offset: -$projvelx,-$projvely; redirectid: $rootID;}
 	}
+}
+for p = root,numProj-1; 0; -1 {
+	if root,projVar(-1, $p, projid) != 1304 {
+		continue;
+	}
+	modifyProjectile{index: $p; projpriority: floor(map(BasePriority)-1); redirectid: $rootID;}
 }
 fVar(0) := 0.95*fVar(0);
 angleDraw{value: 0; scale: fVar(0),fVar(0);}
@@ -1233,7 +1250,7 @@ if root,moveType = H && !root,getHitVar(guarded) {
 }
 
 if !time {
-	call HitFactors(0.93, 5, 0.75, 2, 0);
+	call HitFactors(0.93, 5, 0.75, 2, 0, 0);
 	let angle = atan2(vel Y,vel X);
 	fVar(0) := 0.25*cos($angle);
 	fVar(1) := 0.25*sin($angle);
@@ -1254,11 +1271,11 @@ if map(ZenithClashesHiPrio) > 0 {
 	mapAdd{map: "ZenithClashPoints"; value: -map(ZenithClashesEqPrio);}
 }
 
-if (moveContact && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(playerid)),isHelper)) || map(GotGrazed) || map(ZenithClashPoints) <= 0 {
+if (moveContact && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(playerid)),isHelper)) || map(GotGrazed) || moveReversed || map(ZenithClashPoints) <= 0 {
 	changeState{value: 1305;}
 }
 
-hitDef{attr: S,SP; hitflag: MAF; guardflag: MA; animtype: Medium; priority: floor(map(BasePriority))-1,Hit; damage: 20,5; guardpoints: 25; getpower: 20,20; pausetime: 0,0; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: Low; ground.slidetime: 17; ground.hittime: 17; air.hittime: 20; guard.ctrltime: 15; yaccel: 0.25; ground.velocity: -7.5; guard.velocity: -5; air.velocity: -3,-6; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 2; p1getp2facing: 0; air.fall: 1; fall.xvelocity: -1.5; fall.recover: 1; fall.recovertime: 25; fall.damage: 0; down.bounce: 1; id: 1200; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
+hitDef{attr: S,SP; hitflag: MAF; guardflag: MA; animtype: Medium; priority: floor(map(BasePriority))-1,Hit; damage: 20,2; guardpoints: 25; getpower: 20,20; pausetime: 0,0; guard.pausetime: 0,0; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: Low; ground.slidetime: 17; ground.hittime: 17; air.hittime: 20; guard.ctrltime: 15; yaccel: 0.5; ground.velocity: -7.5; guard.velocity: -5; air.velocity: -3,-6.5; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 2; p1getp2facing: 0; air.fall: 1; fall.xvelocity: -1.5; fall.recover: 1; fall.recovertime: 25; fall.damage: 0; down.bounce: 1; id: 1300; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 
 }
 
@@ -1275,7 +1292,6 @@ physics: N;
 poweradd: 0;
 velset: 0,0;
 movehitpersist: 1;
-hitdefpersist: 1;
 ctrl: 0;
 sprpriority: 2;]
 
@@ -1292,7 +1308,7 @@ if moveHitVar(frame) && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(play
 	}
 	explod{id: 1306; anim: 1306; animelem: animElemNo(0); pos: 0,0; postype: P1; sprpriority: 2; bindtime: 0; removetime: -2; supermovetime: 0; pausemovetime: 0; shader: "trans_rights"; shadertime: -1; ownpal: 1;}
 	destroySelf{}
-} else if map(GotGrazed) || map(ZenithClashPoints) <= 0 {
+} else if map(GotGrazed) || moveReversed || map(ZenithClashPoints) <= 0 {
 	explod{id: 1306; anim: 1306; animelem: animElemNo(0); pos: 0,0; postype: P1; sprpriority: 2; bindtime: 0; removetime: -2; supermovetime: 0; pausemovetime: 0; shader: "trans_rights"; shadertime: -1; ownpal: 1;}
 	destroySelf{}
 }
@@ -1300,6 +1316,10 @@ if moveHitVar(frame) && (!map(ZenithClashNonCompat) || !playerId(moveHitVar(play
 if (root,moveType = H && !root,getHitVar(guarded)) || !animTime {
 	destroySelf{}
 }
+if !time {
+	call HitFactors(0.98, 2, 1.5, 2, 0, 1);
+}
+hitDef{attr: S,SP; hitflag: MAF; guardflag: MA; animtype: Medium; priority: floor(map(BasePriority))-1,Hit; damage: 20,2; guardpoints: 0; getpower: 10,10; pausetime: 0,10; guard.pausetime: 0,5; sparkno: -1; guard.sparkno: -1; sparkxy: 0,0; hitsound: -1; guardsound: -1; ground.type: Low; ground.slidetime: 24; ground.hittime: 24; air.hittime: 20; guard.ctrltime: 21; yaccel: 0.5; ground.velocity: -12.5; guard.velocity: -6.5; air.velocity: -3.75,-4.25; airguard.velocity: -3,-6; airguard.ctrltime: 19; ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0; air.juggle: 0; p1sprpriority: 2; p1getp2facing: 0; air.fall: 1; fall.xvelocity: -1.875; fall.recover: 1; fall.recovertime: 35; fall.damage: 0; down.bounce: 1; id: 1300; chainID: -1; nochainID: -1; hitonce: enemynear,name != "Dragon Tank"; guard.kill: 0; numhits: 1; stand.friction: 1; crouch.friction: 1;}
 
 [StateDef 1400;
 type: S;
@@ -1315,8 +1335,8 @@ if animElem = 5 {
 } else if animElem = 6 {
 	stateTypeSet{movetype: I;}
 } else if animElem = 8 {
-	explod{id: 1405; anim: 1405; pos: 0,0; postype: P1; sprpriority: 0; bindtime: -1; facing: 1; removetime: -1; supermovetime: -1; pausemovetime: -1; ownpal: 1; palfx.time: -1; trans: add; shader: "trans_rights"; shadertime: -1;}
-	helper{id: 1400; stateno: 1401; pos: cond(anim = 1401,250,62.5),0; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1; map.a: anim; inheritchannels: 1;}
+	explod{id: 1405; anim: 1405; pos: 0,0; postype: P1; sprpriority: 0; bindtime: -1; facing: 1; removetime: -1; supermovetime: -1; pausemovetime: -1; ownpal: 1; palfx.time: -1; shader: "trans_rights"; shadertime: -1;}
+	helper{id: anim; stateno: 1401; pos: cond(anim = 1401,250,62.5),0; postype: p1; facing: 1; ownpal: 1; inheritjuggle: 1; map.ZenithClashDNPH: 1; map.ZenithClashDNHH: 1; map.ZenithClashPoints: 1; map.a: anim; inheritchannels: 1;}
 	call SpendBorder(200, 120, 50);
 	map(CanActionCancel) := 1;
 } else if animElem = 12 {
@@ -1352,72 +1372,106 @@ if moveContact && moveHitVar(frame) && (!map(ZenithClashNonCompat) || !playerId(
 	mapAdd{map: "ZenithClashPoints"; value: -1;}
 }
 
-if (root,moveType = H && !root,getHitVar(guarded)) {
-	if !numExplod(1406) {
-		destroySelf{}
-	} else {
-		changeAnim{value: 1403; elem: 11;}
-	}
-}
-if anim = 1403 && animElemTime(11) >= 0 && !numExplod(1406) {
-	destroySelf{}
-} else if animElem = 2 {
+if !time {
+	explod{id: 1405; anim: 1405; pos: 0,0; postype: P1; sprpriority: 0; bindtime: -1; facing: 1; removetime: -1; supermovetime: -1; pausemovetime: -1; ownpal: 1; palfx.time: -1; trans: add; alpha: 256,256; shader: "trans_rights"; shadertime: -1;}
 	shaderSet{shader: "trans_rights"; time: -1;}
-	stateTypeSet{movetype: A;}
-	if isHelper(4444) {
-		call HitFactors(2, 0, 0, 4, 0);
-	} else {
-		call HitFactors(0.95, 10, 0, 4, 2);
-	}
-	map(SokuHitType) := 1;
-	explod{id: 1007; anim: 1007; pos: 0,0; postype: P1; sprpriority: 0; bindtime: 0; facing: 1; removetime: -2; ownpal: 1; xangle: -80; shader: "trans_rights"; shadertime: -1;}
-	let eangle = randomRange(0,35999)/100.0;
-	for i = 0; 7; 1 {
-		let eangle = $eangle+45;
-		let espeed = randomRange(950,1450)/100.0;
-		explod{anim: 1006; ID: 1006; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; vel: $espeed*sin($eangle),$espeed*cos($eangle)*0.2; accel: -0.25*sin($eangle),-0.05*cos($eangle); friction: 1,1,randomRange(-500,500)/100.0; angle: randomRange(0,35999)/100.0; removetime: -2; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 37; interpolation.palfx.mul: 256,0,0; sprpriority: 5; ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; removeongethit: 0; ignorehitpause: 1;}
-	}
+	call HitFactors(0.8, 40, 1.5, 4, 1, 1);
 }
 
-for i = 0; numExplod(1006) - 1; 1 {
-	let etime = explodVar(1006, $i, time)+1.0;
-	let eanglevel = (explodVar(1006, $i, friction Z)*$etime)*(0.98**$etime);
-	modifyExplod{id: 1006; index: $i; angle: $eanglevel;}
+if (animElemTime(11) >= 0 && (time >= 30 || !map(ZenithClashPoints))) || (root,moveType = H && !root,getHitVar(guarded)) {
+	changeState{value: 1402}
 }
 
-if !moveContact && animElemTime(2) >= 0 {
+if time%2 = 0 {
+	let escale = 1.0+randomrange(0,100)*0.01;
+	let eangle = rad(randomRange(0, 35999)/100.0);
+	explod{anim: 1406; ID: 1406; pos: 0,0; postype: p1; facing: 1; vfacing: 1; bindtime: 0; vel: 10*cos($eangle),2*sin($eangle); accel: 0,0; friction: 0.94,1,randomRange(-500,500)/100.0; angle: randomRange(0,35999)/100.0; removetime: -2; palfx.time: -1; palfx.mul: 256,256,256; sprpriority: 5; ontop: 0; shadow: 0,0,0; reflection: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; removeongethit: 0; ignorehitpause: 1;}
+}
+
+for i = 0; numExplod(1406) - 1; 1 {
+	let etime = explodVar(1406, $i, time)+1;
+	let eanglevel = explodVar(1406, $i, friction Z)-(0.6*(0.9**$etime));
+	let epalmul = 256-(256*float($etime)/31);
+	let evely = (explodVar(1406, $i, vel Y)+(0.08*$etime))*0.94 - (0.08*$etime);
+	modifyExplod{id: 1406; index: $i; angle: explodVar(1406, $i, angle)+$eanglevel; vel: explodVar(1406, $i, vel X),$evely; palfx.mul: 256,$epalmul,$epalmul; friction: 0.94,1,$eanglevel}
+}
+
+ignoreHitPause {
+angleDraw{value: cond(isHelper(1401),45,-45);}
+transformClsn{angle: cond(isHelper(1401),45,-45);}
+transformSprite{window: -1000000,-1000000,1000000,0}
+
+if map(ZenithClashPoints) {
 	hitDef{attr: S, SP;
-	damage: 40,10;
+	damage: 100,25;
+	guard.kill: 0;
 	hitonce: enemynear,name != "Dragon Tank";
-	animtype: Up;
+	animtype: Heavy;
 	guardflag: MA;
 	hitflag: MAF;
 	priority: map(BasePriority), Hit;
-	pausetime: 0, 3;
+	pausetime: 0,0;
 	guard.pausetime: 0,0;
 	sparkno: -1;
 	sparkxy: 0, -70;
 	hitsound: -1;
 	guardsound: -1;
 	ground.type: Low;
-	ground.slidetime: 34;
-	ground.hittime: 34;
-	ground.velocity: -8.75,-3.75;
-	guard.ctrltime: 27;
+	ground.slidetime: 24;
+	ground.hittime: 24;
+	ground.velocity: cond(isHelper(1401),5,-5),-9.25;
+	guard.ctrltime: 21;
 	airguard.ctrltime: 19;
 	air.type: Low;
-	air.velocity: -8.75,-3.75;
+	air.velocity: cond(isHelper(1401),5,-5),-9.25;
 	air.hittime: 0;
-	guard.velocity: -7.25;
+	guard.velocity: -6.5;
 	airguard.velocity: -3,-6;
 	fall: 1;
 	fall.recover: 1;
-	fall.xvelocity: -4.375;
-	fall.recovertime: 63;
-	yaccel: 0.4;
-	guardpoints: 75;
+	fall.xvelocity: cond(isHelper(1401),2.5,-2.5);
+	fall.recovertime: 60;
+	yaccel: 0.5;
+	guardpoints: 200;
 	stand.friction: 1;
 	crouch.friction: 1;
-	getpower: 25,25;
+	getpower: 100,100;
 	ground.cornerpush.veloff: 0; air.cornerpush.veloff: 0; down.cornerpush.veloff: 0; guard.cornerpush.veloff: 0; airguard.cornerpush.veloff: 0;}
+}
+}
+
+[StateDef 1402;
+type: S;
+movetype: I;
+physics: N;
+ctrl: 0;
+anim: 1403;
+sprpriority: 2;]
+
+ignoreHitPause {
+
+if numExplod(1405) {
+	if !time {
+		modifyExplod{id: 1405; index: 0; removetime: 17;}
+	}
+	let ert = explodVar(1405, 0, removetime)-explodVar(1405, 0, time);
+	let scaledtime = (256/17.0)*$ert;
+	let escale = lerp(0.15,1,$ert/17.0);
+	modifyExplod{id: 1405; index: 0; palfx.mul: $scaledtime,$scaledtime,256; scale: $escale,$escale; trans: add; alpha: $scaledtime,256;}
+}
+
+for i = 0; numExplod(1406) - 1; 1 {
+	let etime = explodVar(1406, $i, time)+1;
+	let eanglevel = explodVar(1406, $i, friction Z)-(0.6*(0.9**$etime));
+	let epalmul = 256-(256*float($etime)/31);
+	let evely = (explodVar(1406, $i, vel Y)+(0.08*$etime))*0.94 - (0.08*$etime);
+	modifyExplod{id: 1406; index: $i; angle: explodVar(1406, $i, angle)+$eanglevel; vel: explodVar(1406, $i, vel X),$evely; palfx.mul: 256,$epalmul,$epalmul; friction: 0.94,1,$eanglevel}
+}
+
+angleDraw{value: cond(isHelper(1401),45,-45);}
+transformSprite{window: -1000000,-1000000,1000000,0}
+if animElemTime(11) >= 0 && !numExplod {
+	destroySelf{}
+}
+
 }

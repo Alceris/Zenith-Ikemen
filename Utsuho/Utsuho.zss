@@ -42,6 +42,13 @@ if !time {
 	} else if prevStateNo != 100 && ((command = "holdright" && command != "holdleft" && facing = -1) || (command = "holdleft" && command != "holdright" && facing = 1)) {
 		sysVar(1) := 2;
 	}
+	if !sysVar(1) {
+		if (command = "SuperJumpRight" && facing = 1) || (command = "SuperJumpLeft" && facing = -1) {
+			sysVar(1) := 1;
+		} else if prevStateNo != 100 && ((command = "SuperJumpRight" && facing = -1) || (command = "SuperJumpLeft" && facing = 1)) {
+			sysVar(1) := 2;
+		}
+	}
 }
 
 if !animTime {
@@ -392,7 +399,10 @@ poweradd: 0;
 ctrl: 0;
 sprpriority: 0;]
 
-if !time {sysFVar(35) := 0;}
+if !time {
+	sysFVar(35) := 0;
+	sysVar(41) := sysVar(41)+1;
+}
 
 if vel Y = 0 && pos Y >= 0 {
 	changeState{value: 52; ctrl: 1;}
@@ -498,7 +508,10 @@ poweradd: 0;
 ctrl: 0;
 sprpriority: 0;]
 
-if !time {sysFVar(35) := 0;}
+if !time {
+	sysFVar(35) := 0;
+	sysVar(41) := sysVar(41)+1;
+}
 
 if vel Y = 0 && pos Y >= 0 {
 	changeState{value: 52; ctrl: 1;}
@@ -716,6 +729,527 @@ if stateType = A {
 	changeState{value: 11; ctrl: 1;}
 }
 
+[StateDef 900;
+type: S;
+movetype: I;
+physics: N;
+velset: 0,0;
+anim: 900;
+poweradd: 0;
+ctrl: 0;
+sprpriority: 0;]
+
+if !time {
+	sysFVar(35) := 0;
+}
+
+if stateType = A && pos Y >= 0 && vel Y = 0 {
+	changeState{value: 910; ctrl: 0;}
+}
+
+velAdd{y: sysFVar(35);}
+
+if vel Y + pos Y >= 0 {
+	posSet{y: 0;}
+	velSet{y: 0;}
+}
+
+if animElemTime(3) >= 0 && animElemTime(3)%6 = 0 {
+	explod{
+	id: 10102;
+	anim: 10102;
+	pos: randomRange(-3000,1500)/100.0,randomRange(0,-10000)/100.0;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: 14;
+	supermovetime: -1;
+	pausemovetime: -1;
+	vel: 5,0;
+	facing: -1;
+	trans: add;
+	alpha: 256,256;
+	palfx.time: -1;
+	palfx.mul: 256,256,256;
+	scale: const(size.xscale),const(size.yscale);
+	interpolation.time: 14;
+	interpolation.palfx.mul: 0,0,256;
+	interpolation.alpha: 0,256;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+}
+
+if animElem = 3 {
+	explod{
+	id: 10100;
+	anim: 10100;
+	pos: 0,-40.5;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	facing: -1;
+	removetime: -2;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	explod{
+	id: 10101;
+	anim: 10101;
+	pos: 0,-40.5;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: 10;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	facing: -1;
+	alpha: 256,256;
+	palfx.time: -1;
+	palfx.mul: 256,256,256;
+	scale: 0.6*const(size.xscale),0.6*const(size.yscale);
+	interpolation.time: 10;
+	interpolation.scale: 2.35*const(size.xscale),2.35*const(size.yscale);
+	interpolation.palfx.mul: 0,0,256;
+	interpolation.alpha: 0,256;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	velSet{x: -7; y: -2;}
+	playSnd{value: S100,0;}
+	stateTypeSet{statetype: A;}
+	sysFVar(35) := 0.25;
+}
+
+if animElemTime(3) < 0 {
+	notHitBy{value: ,AA,AP,AT; time: 1;}
+} else {
+	notHitBy{value: ,AP; time: 1;}
+	map(IsSokuGrazing) := 1;
+}
+
+[StateDef 910;
+type: S;
+movetype: I;
+physics: N;
+anim: 910;
+poweradd: 0;
+ctrl: 0;
+sprpriority: 0;]
+
+if !time {
+	velSet{y: 0;}
+	posSet{y: 0;}
+}
+
+if vel X < 0 {
+	velSet{x: min(vel X+1, 0);}
+}
+
+if !animTime {
+	changeState{value: 0; ctrl: 1;}
+}
+
+[StateDef 901;
+type: S;
+movetype: I;
+physics: N;
+velset: 0,0;
+anim: 901;
+poweradd: 0;
+ctrl: 0;
+sprpriority: 0;]
+
+if animElemTime(3) >= 0 && animElemTime(3)%6 = 0 {
+	explod{
+	id: 10102;
+	anim: 10102;
+	pos: randomRange(-1500,3000)/100.0,randomRange(0,-10000)/100.0;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: 14;
+	supermovetime: -1;
+	pausemovetime: -1;
+	vel: -5,0;
+	trans: add;
+	alpha: 256,256;
+	palfx.time: -1;
+	palfx.mul: 256,256,256;
+	scale: const(size.xscale),const(size.yscale);
+	interpolation.time: 14;
+	interpolation.palfx.mul: 0,0,256;
+	interpolation.alpha: 0,256;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+}
+
+if animElem = 3 {
+	explod{
+	id: 10100;
+	anim: 10100;
+	pos: 0,-40.5;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: -2;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	explod{
+	id: 10101;
+	anim: 10101;
+	pos: 40,-55;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: 10;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	alpha: 256,256;
+	palfx.time: -1;
+	palfx.mul: 256,256,256;
+	scale: 0.6*const(size.xscale),0.6*const(size.yscale);
+	interpolation.time: 10;
+	interpolation.scale: 2.35*const(size.xscale),2.35*const(size.yscale);
+	interpolation.palfx.mul: 0,0,256;
+	interpolation.alpha: 0,256;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	velSet{x: 3.75;}
+	playSnd{value: S100,0;}
+}
+
+if time >= 30 && (command != "holdfwd" || time >= 60) {
+	changeState{value: 101; ctrl: 0;}
+}
+
+notHitBy{value: ,AP; time: 1;}
+map(IsSokuGrazing) := 1;
+
+[StateDef 902; type: S; movetype: A; physics: N; anim: 902; ctrl: 0;]
+
+attackDist{value: 0, 0;}
+map(IsSokuGrazing) := 1;
+notHitBy{attr: ,AP; time: 1; slot: 0;}
+
+if !time {
+	call ActionStart(1);
+	sysVar(1) := 0;
+	if (command = "holdright" && command != "holdleft" && facing = -1) || (command = "holdleft" && command != "holdright" && facing = 1) {
+		sysVar(1) := 1;
+	}
+}
+
+if !animTime {
+	explod{
+	id: 10041;
+	anim: 10041;
+	pos: 0,0;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	facing: 1;
+	removetime: -2;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	ownpal: 1;
+	scale: 1,1;
+	interpolation.time: 10;
+	interpolation.scale: 2,2;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	explod{
+	id: 10042;
+	anim: 10042;
+	pos: 0,0;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	facing: 1;
+	removetime: 13;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	alpha: 256,256;
+	ownpal: 1;
+	xangle: -80;
+	palfx.time: -1;
+	palfx.mul: 256,256,256;
+	scale: 0.35,0.35;
+	interpolation.time: 13;
+	interpolation.scale: 1.5,1.5;
+	interpolation.alpha: 0,256;
+	interpolation.palfx.mul: 0,0,256;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	sysFVar(35) := 0.425;
+	playSnd{value: S100,1; volumescale: 100;}
+	velSet{x: cond(sysvar(1),-5,0); y: cond(sysvar(1),-9,-11.25)}
+	changeState{value: 903; anim: 903+sysVar(1); ctrl: 0;}
+}
+
+[StateDef 903; type: A; movetype: I; physics: N;]
+
+if vel Y = 0 && pos Y >= 0 {
+	changeState{value: 52; ctrl: 1;}
+}
+
+if vel Y < 0 {
+	map(GrazeTime) := 2;
+}
+
+if !time {
+	notHitBy{attr: ,AT; time: 1; slot: 0;}
+} else {
+	velAdd{y: sysFVar(35);}
+}
+
+if pos Y + vel Y >= 0 {
+	posSet{y: 0;}
+	velSet{y: 0;}
+}
+
+if animElemTime(5) < 0 {
+	map(IsSokuGrazing) := 1;
+	notHitBy{attr: ,AP; time: 1; slot: 1;}
+} else if animElem = 5 {
+	map(CanGuard) := 1;
+} else if animElem = 7 {
+	ctrlSet{value: 1}
+}
+
+[StateDef 904;
+type: A;
+movetype: I;
+physics: N;
+velset: 0,0;
+anim: 906;
+poweradd: 0;
+ctrl: 0;
+sprpriority: 0;]
+
+if !time {
+	sysFVar(35) := 0;
+} else if !animTime {
+	changeAnim{value: 41; elem: 13;}
+	changeState{value: 50; ctrl: 1;}
+}
+
+if vel Y = 0 && pos Y >= 0 {
+	changeState{value: 52; ctrl: 1;}
+}
+
+velAdd{y: sysFVar(35);}
+
+if pos Y + vel Y >= 0 {
+	posSet{y: 0;}
+	velSet{y: 0;}
+}
+
+if animElem = 5 {
+	explod{
+	id: 10100;
+	anim: 10100;
+	pos: 1,-58.5;
+	postype: P1;
+	sprpriority: 3;
+	facing: -1;
+	bindtime: 0;
+	removetime: -2;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	explod{
+	id: 10101;
+	anim: 10101;
+	pos: 1,-58.5;
+	facing: -1;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: 10;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	alpha: 256,256;
+	palfx.time: -1;
+	palfx.mul: 256,256,256;
+	scale: 0.6*const(size.xscale),0.6*const(size.yscale);
+	interpolation.time: 10;
+	interpolation.scale: 2.35*const(size.xscale),2.35*const(size.yscale);
+	interpolation.palfx.mul: 0,0,256;
+	interpolation.alpha: 0,256;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	velSet{x: -5.5; y: -2;}
+	sysFVar(35) := 0.25;
+	playSnd{value: S100,0;}
+} else if animElem = 10 {
+	ctrlSet{value: 1;}
+}
+
+if animElemTime(6) > 0 {
+	if animElemTime(6)%6 = 1 {
+		explod{
+		id: 10102;
+		anim: 10102;
+		pos: randomRange(-1500,1500)/100.0,randomRange(0,-10000)/100.0;
+		postype: P1;
+		sprpriority: 3;
+		bindtime: 0;
+		removetime: 14;
+		facing: -1;
+		supermovetime: -1;
+		pausemovetime: -1;
+		vel: 5,0;
+		trans: add;
+		alpha: 256,256;
+		palfx.time: -1;
+		palfx.mul: 256,256,256;
+		scale: const(size.xscale),const(size.yscale);
+		interpolation.time: 14;
+		interpolation.palfx.mul: 0,0,256;
+		interpolation.alpha: 0,256;
+		ownpal: 1;
+		shader: "trans_rights";
+		shadertime: -1;
+		}
+	}
+}
+
+notHitBy{value: ,AP; time: 1;}
+map(IsSokuGrazing) := 1;
+
+[StateDef 905;
+type: A;
+movetype: I;
+physics: N;
+velset: 0,0;
+anim: 907;
+poweradd: 0;
+ctrl: 0;
+sprpriority: 0;]
+
+if !time {
+	sysFVar(35) := 0;
+} else if !animTime {
+	changeAnim{value: 41; elem: 13;}
+	changeState{value: 50; ctrl: 1;}
+}
+
+if vel Y = 0 && pos Y >= 0 {
+	changeState{value: 52; ctrl: 1;}
+}
+
+velAdd{y: sysFVar(35);}
+
+if pos Y + vel Y >= 0 {
+	posSet{y: 0;}
+	velSet{y: 0;}
+}
+
+if animElem = 6 {
+	explod{
+	id: 10100;
+	anim: 10100;
+	pos: 0,-57;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: -2;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	explod{
+	id: 10101;
+	anim: 10101;
+	pos: 38.5,-57;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: 10;
+	supermovetime: -1;
+	pausemovetime: -1;
+	trans: add;
+	alpha: 256,256;
+	palfx.time: -1;
+	palfx.mul: 256,256,256;
+	scale: 0.6*const(size.xscale),0.6*const(size.yscale);
+	interpolation.time: 10;
+	interpolation.scale: 2.35*const(size.xscale),2.35*const(size.yscale);
+	interpolation.palfx.mul: 0,0,256;
+	interpolation.alpha: 0,256;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+	velSet{x: 5.5; y: -2;}
+	sysFVar(35) := 0.25;
+	playSnd{value: S100,0;}
+} else if animElem = 10 {
+	ctrlSet{value: 1;}
+	if p2Dist X < 0 {turn{}}
+}
+
+if animElemTime(6) > 0 && animElemTime(6)%6 = 1 {
+	explod{
+	id: 10102;
+	anim: 10102;
+	pos: randomRange(-1500,1500)/100.0,randomRange(0,-10000)/100.0;
+	postype: P1;
+	sprpriority: 3;
+	bindtime: 0;
+	removetime: 14;
+	supermovetime: -1;
+	pausemovetime: -1;
+	vel: -5,0;
+	trans: add;
+	alpha: 256,256;
+	palfx.time: -1;
+	palfx.mul: 256,256,256;
+	scale: const(size.xscale),const(size.yscale);
+	interpolation.time: 14;
+	interpolation.palfx.mul: 0,0,256;
+	interpolation.alpha: 0,256;
+	ownpal: 1;
+	shader: "trans_rights";
+	shadertime: -1;
+	}
+}
+
+notHitBy{value: ,AP; time: 1;}
+map(IsSokuGrazing) := 1;
+
 #-------------------------------------------------------------------------------
 # Stand get-hit (shaking)
 [StateDef 5000; type: S; movetype: H; physics: N; velset: 0, 0;]
@@ -857,7 +1391,7 @@ if canRecover && command = "recovery" && sign(inputTime(L)) != sign(inputTime(R)
 
 if anim != 5030 && anim != 5035 && anim != 5050 {
 	changeAnim{value: 5030; elem: 1; elemtime: 1;}
-} else if anim = 5030 && animElemTime(2) >= 0 && vel y > -0.5 {
+} else if anim = 5030 && animElemTime(2) >= 0 && (round(vel y+sysFVar(35),1) > -0.5 || map(SokuFloatFrame)) {
 	changeAnim{value: 5035;}
 }
 if anim = 5035 && animElemTime(3) < 0 && vel y > 4 {
@@ -1015,6 +1549,7 @@ if animElem = 11 {
 [StateDef 5200; type: A; movetype: I; physics: N;]
 
 if !time {
+	sysVar(41) := 0;
 	sysFVar(35) := 0.375;
 	if p2Dist X < 0 {
 		turn{}

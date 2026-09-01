@@ -181,6 +181,30 @@ time = 0
 buffer.time = 16
 
 [Command]
+name = "SuperJumpRight"
+command = $D,$UR
+time = 18
+buffer.time = 16
+
+[Command]
+name = "SuperJumpRight"
+command = $D+$UR
+time = 18
+buffer.time = 16
+
+[Command]
+name = "SuperJumpLeft"
+command = $D,$UL
+time = 18
+buffer.time = 16
+
+[Command]
+name = "SuperJumpLeft"
+command = $D+$UL
+time = 18
+buffer.time = 16
+
+[Command]
 name = "FF"
 command = R + ~R + R
 time = 18
@@ -191,5 +215,10 @@ name = "BB"
 command = L + ~L + L
 time = 18
 buffer.time = 10
+
+[Command]
+name = "Border Escape"
+command = x, x
+time = 18
 
 [Statedef -1]

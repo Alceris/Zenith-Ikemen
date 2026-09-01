@@ -28,7 +28,7 @@ if !playerId($charID),pauseTime {
 	let numparticles = 0;
 
 	if selfAnimExist(99999+floor($Effect)) {
-		explod{id: 99999+floor($Effect); anim: 99999+floor($Effect); pos: $sparkx,$sparky; postype: none; angle: randomRange(-18000,18000)/100.0; ontop: 1; bindtime: 0; removetime: -2; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; redirectid: $charID;}
+		explod{id: 99999+floor($Effect); anim: 99999+floor($Effect); pos: $sparkx,$sparky; postype: none; angle: randomRange(0,35999)/100.0; ontop: 1; bindtime: 0; removetime: -2; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; redirectid: $charID;}
 	}
 
 	switch $Effect {
@@ -62,24 +62,29 @@ if !playerId($charID),pauseTime {
 	#	case 14:
 	#	case 15:
 	#	case 16:
+		case 71:
+			explod{id: 100054; anim: 100054; pos: $sparkx,$sparky; postype: none; ontop: 1; bindtime: 0; removetime: -2; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 12; interpolation.palfx.mul: 0,0,256; redirectid: $charID;}
+			let numbluebeams = 3;
+			let numredbeams = 3;
+			let numparticles = 6;
 	}
 
 	for i = 1; $numparticles; 1 {
 		let escale = randomRange(0,100)/100.0;
-		let eangle = randomRange(-18000,18000)*pi/18000.0;
+		let eangle = randomRange(0,35999)*pi/18000.0;
 		let espeed = randomRange(400,1000)/100.0;
 		explod{anim: 100050; ID: 100050; pos: $sparkx,$sparky; postype: none; bindtime: 0; vel: $espeed*sin($eangle),$espeed*cos($eangle); removetime: -2; pausemovetime: -1; supermovetime: -1; scale: $escale,$escale; ontop: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; redirectid: $charID;}
 	}
 
 	for i = 1; $numbluebeams; 1 {
-		let eangle = randomRange(-18000,18000)/100.0;
+		let eangle = randomRange(0,35999)/100.0;
 		let edir = rad($eangle);
 		let espeed = randomRange(0,1000)/100.0;
 		explod{anim: 100051; ID: 100051; pos: $sparkx,$sparky; postype: none; bindtime: 0; vel: $espeed*sin($edir),$espeed*cos($edir); removetime: -2; pausemovetime: -1; supermovetime: -1; scale: randomRange(100,3000)/100.0,randomRange(100,400)/100.0; angle: $eangle-90; ontop: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; redirectid: $charID;}
 	}
 
 	for i = 1; $numredbeams; 1 {
-		let eangle = randomRange(-18000,18000)/100.0;
+		let eangle = randomRange(0,35999)/100.0;
 		let edir = rad($eangle);
 		let espeed = randomRange(0,1000)/100.0;
 		explod{anim: 100052; ID: 100052; pos: $sparkx,$sparky; postype: none; bindtime: 0; vel: $espeed*sin($edir),$espeed*cos($edir); removetime: -2; pausemovetime: -1; supermovetime: -1; scale: randomRange(100,3000)/100.0,randomRange(100,400)/100.0; angle: $eangle-90; ontop: 1;shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; redirectid: $charID;}
@@ -95,6 +100,10 @@ anim: 9999; ctrl: 0; velset: 0, 0;]
 ignoreHitPause {
 let rootID = root,ID;
 
+if root,moveType != H && root,hitOverridden && !root,hitShakeOver && playerId(root,getHitVar(playerid)),authorName != "nns" {
+	modifyPlayer{hitpausetime: max(root,hitPauseTime,root,getHitVar(hitshaketime)); redirectid: root,ID}
+}
+
 for i = root,numProjID(1304)-1; 0; -1 {
 	if root,projVar(1304, $i, projremovetime) = 12 {
 		modifyProjectile{id: 1304; index: $i; projanim: 1306; velocity: 0,0; accel: 0,0; redirectid: $rootID;}
@@ -109,6 +118,7 @@ for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
 	let charID = player($i),ID;
 	if player($i),moveType = H && player($i),stateNo != 5150 {
 		if player($i),getHitVar(frame) {
+			let didcounter = 0;
 			let behind = sign(round(player($i),pos X-root,pos X, 0));
 			if !$behind {
 				let behind = root,facing;
@@ -129,6 +139,12 @@ for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
 							}
 						}
 						if player($i),map(SokuComboLimit) < 100 {
+							if !$didcounter && root,helperIndex($h),moveCountered && root,helperIndex($h),map(SokuCanCounterHit) {
+								let origdamage = round($origdamage*1.3333333333333333333333333333333, 0);
+								playSnd{value: S3,0; abspan: player($i),pos X; channel: 7;}
+								call HitEffect(71, root,helperIndex($h),ID, $charID);
+								let didcounter = 1;
+							}
 							let modifiers = player($i),map(SokuModifierHits);
 							let finaldamagecalc = $finaldamagecalc+round($origdamage*player($i),map(SokuComboRate)*cond($modifiers, cond($modifiers = 3, 0.64, 0.8),1)*lerp(0.7, 1, float(player($i),life-$finaldamagecalc)/player($i),lifeMax), 0);
 							let prevrate = player($i),map(SokuComboRate);
@@ -154,6 +170,9 @@ for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
 				}
 				powerAdd{value: floor($finaldamagecalc*0.5*(1000.0/player($i),lifeMax)); redirectid: $charID;}
 				getHitVarSet{damage: player($i),getHitVar(hitdamage)-$origdamagecalc+$finaldamagecalc; redirectid: $charID;}
+				if player($i),getHitVar(damage) >= player($i),life && player($i),getHitVar(kill) && !isAsserted(GlobalNoKO) && !player($i),isAsserted(NoKO) {
+					getHitVarSet{fall: 1; xvel: player($i),getHitVar(air.velocity.x); yvel: player($i),getHitVar(air.velocity.y); redirectid: $charID;}
+				}
 				if player($i),hitFall {
 					getHitVarSet{fall.recovertime: (player($i),getHitVar(fall.recovertime)-player($i),getHitVar(HitShakeTime))*$prevrate + player($i),getHitVar(HitShakeTime); redirectid: $charID;}
 				}
@@ -196,13 +215,25 @@ for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
 							getHitVarSet{fall.yvel: player($i),vel Y/-2; redirectid: $charID;}
 						}
 					}
-					if !$SokuGetHitType && !player($i),getHitVar(frame) && player($i),getHitVar(yaccel) = 0.25 && player($i),hitFall && player($i),vel Y <= 0 {
-						velAdd{y: 0.25; redirectid: $charID;}
-					} else if $SokuGetHitType = 2 && player($i),backEdgeBodyDist <= 0 {
+					if $SokuGetHitType != 1 && !player($i),getHitVar(frame) && player($i),hitFall && round(player($i),vel Y, 1) < 0 {
+						let yaccel = player($i),getHitVar(yaccel);
+						if !player($i),map(SokuFloatFrame) && round(player($i),vel Y+$yaccel, 1) > -0.5 {
+							if !$SokuGetHitType && $yaccel = 0.5 {
+								getHitVarSet{yaccel: 0.25; redirectid: $charID;}
+							}
+							mapSet{map: "SokuFloatFrame"; value: 1; redirectid: $charID;}
+							velAdd{y: -player($i),getHitVar(yaccel); redirectid: $charID;}
+						} else if !$SokuGetHitType && $yaccel = 0.25 {
+							velAdd{y: 0.25; redirectid: $charID;}
+						}
+					} else {
+						mapSet{map: "SokuFloatFrame"; value: 0; redirectid: $charID;}
+					}
+					if $SokuGetHitType = 2 && player($i),backEdgeBodyDist <= 0 {
 						selfState{value: 5600; ctrl: 0; continue: 1; readplayerid: $rootID; redirectid: $charID;}
 						playSnd{value: S52,1; volumescale: 200; abspan: player($i),pos X;}
 						explod{id: 105100; anim: 105100; pos: gameWidth/2.0*sign(player($i),pos X)+camerapos X,player($i),pos Y+player($i),groundLevel-50; postype: none; sprpriority: 0; bindtime: 0; facing: 1; removetime: -2; supermovetime: -1; pausemovetime: -1; ownpal: 1; yangle: -80; shader: "trans_rights"; shadertime: -1;}
-						explod{id: 100003; anim: 100003; pos: gameWidth/2.0*sign(player($i),pos X)+camerapos X,player($i),pos Y+player($i),groundLevel-50; postype: none; ontop: 1; bindtime: 0; facing: 1; removetime: -2; supermovetime: -1; pausemovetime: -1; ownpal: 1; angle: randomRange(-18000,18000)/100.0; shader: "trans_rights"; shadertime: -1;}
+						explod{id: 100003; anim: 100003; pos: gameWidth/2.0*sign(player($i),pos X)+camerapos X,player($i),pos Y+player($i),groundLevel-50; postype: none; ontop: 1; bindtime: 0; facing: 1; removetime: -2; supermovetime: -1; pausemovetime: -1; ownpal: 1; angle: randomRange(0,35999)/100.0; shader: "trans_rights"; shadertime: -1;}
 						mapSet{map: "SokuGetHitType"; value: -1; redirectid: $charID;}
 					}
 				}
@@ -211,9 +242,6 @@ for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
 					getHitVarSet{fall.yvel: player($i),getHitVar(yvel)/-2; redirectid: $charID;}
 				}
 			}
-		}
-		if player($i),getHitVar(playerid) = $rootID && ((!player($i),map(SokuGetHitType) && player($i),getHitVar(yaccel) = 0.25) || player($i),getHitVar(guarded) || player($i),stateType != A) && player($i),backEdgeBodyDist+player($i),vel X <= 0 {
-			mapSet{map: "DoSokuCornerPush"; value: cond(player($i),stateType = A,3,1+player($i),getHitVar(guarded)); redirectid: $rootID;}
 		}
 	}
 }
@@ -265,6 +293,11 @@ ignoreHitPause {
 if sysVar(4444) = 4 {
 	destroySelf{removeexplods: 1;}
 }
+
+if numTarget {
+	assertSpecial{flag: PostRoundInput;}
+}
+
 if !roundState {
 	map(SokuBorderBreaks) := 0;
 	map(SokuBorderBreakRecovery) := 0;
@@ -354,12 +387,17 @@ if !numHelper(1618521) {
 
 [StateDef -2]
 
+ignoreHitPause if moveHitVar(frame) && moveHit && moveHitVar(overridden) && !playerId(moveHitVar(playerid)),isHelper {
+	map(HitOverriddenPush) := -7.5*facing;
+}
+
+if map(HitOverriddenPush) {
+	posAdd{x: map(HitOverriddenPush)*facing;}
+	map(HitOverriddenPush) := max(0, abs(map(HitOverriddenPush))-2.5)*sign(map(HitOverriddenPush));
+}
+
 map(IsSokuGrazing) := 0;
 map(SokuBorderBreaks) := max(0,min(map(SokuBorderBreaks),5));
-
-if stateNo != const(StateGuardBreakHit) {
-	guardBreakSet{value: 0;}
-}
 
 if hitShakeOver {
 	if map(_iksys_guardPointsTimer) > 0 {
@@ -396,22 +434,6 @@ if hitShakeOver {
 	}
 }
 
-if map(DoSokuCornerPush) = 1 {
-	posAdd{x: map(SokuCornerPush)*facing;}
-} else if map(DoSokuCornerPush) = 2 {
-	posAdd{x: map(SokuGuardCornerPush)*facing;}
-} else if map(DoSokuCornerPush) = 3 {
-	posAdd{x: map(SokuAirCornerPush)*facing;}
-}
-
-map(SokuCornerPush) := max(0, abs(map(SokuCornerPush))-map(SokuCornerPushDecel))*sign(map(SokuCornerPush));
-map(SokuGuardCornerPush) := max(0, abs(map(SokuGuardCornerPush))-map(SokuGuardCornerPushDecel))*sign(map(SokuGuardCornerPush));
-map(SokuAirCornerPush) := max(0, abs(map(SokuAirCornerPush))-1)*sign(map(SokuAirCornerPush));
-
-if !map(SokuCornerPush) && !map(SokuGuardCornerPush) && !map(SokuAirCornerPush) {
-	map(DoSokuCornerPush) := 0;
-}
-
 [StateDef -3]
 
 if getHitVar(guarded) && getHitVar(guardpoints) > 0 && getHitVar(guardpoints) >= guardPoints {
@@ -430,22 +452,22 @@ if !time {
 	playSnd{value: S3,1;}
 	call BorderBreak();
 	explod{id: 100054; anim: 100054; facing: 1; pos: 0,-50; postype: P1; ontop: 1; bindtime: 0; removetime: -2; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 12; interpolation.palfx.mul: 0,0,256;}
-	let eangle = randomRange(-18000,18000)/100.0;
+	let eangle = randomRange(0,35999)/100.0;
 	explod{id: 105300; anim: 105300; facing: 1; angle: $eangle; pos: 0,-50; postype: P1; ontop: 1; bindtime: 0; removetime: -2; supermovetime: -1; pausemovetime: -1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 26; interpolation.palfx.mul: 0,0,256;}
 	for i = 1; 9; 1 {
 		let escale = randomRange(0,100)/100.0;
-		let eangle = randomRange(-18000,18000)*pi/18000.0;
+		let eangle = randomRange(0,35999)*pi/18000.0;
 		let espeed = randomRange(400,1000)/100.0;
 		explod{anim: 100050; ID: 100050; pos: 0,-50; postype: p1; facing: 1; bindtime: 0; vel: $espeed*sin($eangle),$espeed*cos($eangle); removetime: -2; pausemovetime: -1; supermovetime: -1; scale: $escale,$escale; ontop: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
 	}
 	for i = 1; 6; 1 {
-		let eangle = randomRange(-18000,18000)/100.0;
+		let eangle = randomRange(0,35999)/100.0;
 		let edir = rad($eangle);
 		let espeed = randomRange(0,1000)/100.0;
 		explod{anim: 100051; ID: 100051; pos: 0,-50; postype: p1; facing: 1; bindtime: 0; vel: $espeed*sin($edir),$espeed*cos($edir); removetime: -2; pausemovetime: -1; supermovetime: -1; scale: randomRange(100,3000)/100.0,randomRange(100,400)/100.0; angle: $eangle-90; ontop: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
 	}
 	for i = 1; 6; 1 {
-		let eangle = randomRange(-18000,18000)/100.0;
+		let eangle = randomRange(0,35999)/100.0;
 		let edir = rad($eangle);
 		let espeed = randomRange(0,1000)/100.0;
 		explod{anim: 100052; ID: 100052; pos: 0,-50; postype: p1; facing: 1; bindtime: 0; vel: $espeed*sin($edir),$espeed*cos($edir); removetime: -2; pausemovetime: -1; supermovetime: -1; scale: randomRange(100,3000)/100.0,randomRange(100,400)/100.0; angle: $eangle-90; ontop: 1;shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
@@ -599,6 +621,33 @@ for i = cond(teamSide%2,2,1); (enemy,numPartner+1)*2 - (1-(teamSide%2)); 2 {
 	}
 }
 
+for i = 0; root,numTarget-1; 1 {
+	if root,target(-1, $i),moveType = H && root,target(-1, $i),hitShakeOver && root,target(-1, $i),getHitVar(playerid) = $rootID && root,target(-1, $i),vel X < 0 && root,target(-1, $i),backEdgeBodyDist <= 0 && (!root,target(-1, $i),map(SokuGetHitType) || root,target(-1, $i),getHitVar(guarded) || root,target(-1, $i),stateType != A) {
+		if root,target(-1, $i),stateType = A {
+			velSet{x: min(root,target(-1, $i),vel X+0.5,0); redirectid: root,target(-1, $i),ID;}
+		}
+		map(DoSokuCornerPush) := cond(root,target(-1, $i),stateType = A,3,1+root,target(-1, $i),getHitVar(guarded));
+		if map(DoSokuCornerPush) = 3 && root,map(SokuAirCornerPushDecel) = 0 {
+			posAdd{x: -root,target(-1, $i),vel X*root,map(SokuAirCornerPush)*root,facing; redirectid: $rootID;}
+		}
+		break;
+	}
+}
+
+if map(DoSokuCornerPush) = 1 {
+	posAdd{x: root,map(SokuCornerPush)*root,facing; redirectid: $rootID;}
+} else if map(DoSokuCornerPush) = 2 {
+	posAdd{x: root,map(SokuGuardCornerPush)*root,facing; redirectid: $rootID;}
+} else if map(DoSokuCornerPush) = 3 && root,map(SokuAirCornerPushDecel) > 0 {
+	posAdd{x: root,map(SokuAirCornerPush)*root,facing; redirectid: $rootID;}
+}
+
+map(DoSokuCornerPush) := 0;
+
+mapSet{map: "SokuCornerPush"; value: max(0, abs(root,map(SokuCornerPush))-root,map(SokuCornerPushDecel))*sign(root,map(SokuCornerPush)); redirectid: $rootID;}
+mapSet{map: "SokuGuardCornerPush"; value: max(0, abs(root,map(SokuGuardCornerPush))-root,map(SokuGuardCornerPushDecel))*sign(root,map(SokuGuardCornerPush)); redirectid: $rootID;}
+mapSet{map: "SokuAirCornerPush"; value: max(0, abs(root,map(SokuAirCornerPush))-root,map(SokuAirCornerPushDecel))*sign(root,map(SokuAirCornerPush)); redirectid: $rootID;}
+
 for i = 0; numPlayer - 1; 1 {
 	let charID = playerIndex($i),ID;
 	if root,map(IsSokuGrazing) {
@@ -621,7 +670,7 @@ for i = 0; numPlayer - 1; 1 {
 				let sparky = cond($sparky < $roottop,$roottop,cond($sparky > $rootbot,$rootbot,$sparky));
 				for particle = 0; 1; 1 {
 					let escale = randomRange(100,200)/100.0;
-					let eangle = randomRange(-18000,18000)*pi/18000.0;
+					let eangle = randomRange(0,35999)*pi/18000.0;
 					let espeed = randomRange(400,1000)/100.0;
 					explod{anim: 100050; ID: 100050; pos: $sparkx,$sparky; postype: none; bindtime: 0; vel: $espeed*sin($eangle),$espeed*cos($eangle); removetime: -2; pausemovetime: -1; supermovetime: -1; scale: $escale,$escale; ontop: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
 				}
@@ -639,16 +688,21 @@ for i = 0; numPlayer - 1; 1 {
 		if playerIndex($i),teamSide = root,teamSide || playerIndex($i),hitDefAttr != SCA,AP || playerIndex($i),hitDefAttr = SCA,AA,AT {continue;}
 		let GrazeCost = round(playerIndex($i),map(GrazeCost),0);
 		if playerIndex($i),clsnOverlap(clsn1, $rootID, clsn2) {
-			let GrazeFail = $GrazeCost > 0 && $GrazeCost >= root,guardPoints;
+			let GrazeFail = $GrazeCost > root,guardPoints;
 			if playerIndex($i),map(Ungrazable) || $GrazeFail {
 				for i = 0; 7; 1 {
 					hitBy{attr: SCA,AA,AP,AT; time: 0; slot: $i; redirectid: $rootID}
 					mapSet{map: "IsSokuGrazing"; value: 0; redirectid: $rootID}
 				}
-				if $GrazeFail {guardPointsSet{value: 0; redirectid: $rootID}}
 			} else {
-				guardPointsAdd{value: -$GrazeCost; redirectid: $rootID}
+				if $GrazeCost > 0 {
+					mapSet{map: "_iksys_guardPointsTimer"; value: 29; redirectid: $charID;}
+					guardPointsAdd{value: -$GrazeCost; redirectid: $rootID}
+				}
 				mapSet{map: "GotGrazed"; value: 1; redirectid: $charID}
+				if !playerIndex($i),const(Soku.Graze) {
+					modifyPlayer{movereversed: 1; redirectid: $charID}
+				}
 				let sparkx = playerIndex($i),pos X+(playerIndex($i),hitDefVar(sparkx)*playerIndex($i),facing);
 				let sparky = playerIndex($i),pos Y+playerIndex($i),groundLevel+playerIndex($i),hitDefVar(sparky);
 				let rootleft = min(root,clsnVar(size, 0, front)*root,facing, root,clsnVar(size, 0, back)*root,facing)+root,pos X;
@@ -660,7 +714,7 @@ for i = 0; numPlayer - 1; 1 {
 				let sparky = cond($sparky < $roottop,$roottop,cond($sparky > $rootbot,$rootbot,$sparky));
 				for p = 0; 1; 1 {
 					let escale = randomRange(100,200)/100.0;
-					let eangle = randomRange(-18000,18000)*pi/18000.0;
+					let eangle = randomRange(0,35999)*pi/18000.0;
 					let espeed = randomRange(400,1000)/100.0;
 					explod{anim: 100050; ID: 100050; pos: $sparkx,$sparky; postype: none; bindtime: 0; vel: $espeed*sin($eangle),$espeed*cos($eangle); removetime: -2; pausemovetime: -1; supermovetime: -1; scale: $escale,$escale; ontop: 1; shader: "trans_rights"; shadertime: -1; ownpal: 1; ignorehitpause: 1;}
 				}
@@ -707,6 +761,12 @@ if sysVar(4444) = 4 {
 	destroySelf{removeexplods: 1;}
 }
 
+if moveType != H || ctrl {
+	guardBreakSet{value: 0;}
+}
+
+if pos Y >= 0 {
+	sysVar(41) := 0;
 }
 
 if !pauseTime {
@@ -740,7 +800,35 @@ ignoreHitPause if numExplod(10150) && anim != [150,152] {
 
 ignoreHitPause if (moveType = H && anim != 150 && anim != 152) || inCustomState {map(NoElectron) := 1;}
 
-if !isHelper && !inCustomState {
+if !isHelper {
+
+ignoreHitPause if numExplod(1405) && (stateNo != 1400 || animElemTime(15) >= 0) {
+	for i = 0; numExplod(1405)-1; 1 {
+		if explodVar(1405, $i, removetime) < 0 {
+			modifyExplod{id: 1405; index: $i; bindtime: 0; removetime: 17;}
+		} else {
+			let ert = explodVar(1405, $i, removetime)-explodVar(1405, $i, time);
+			let scaledtime = (256/17.0)*$ert;
+			let escale = lerp(0.15,1,$ert/17.0);
+			modifyExplod{id: 1405; index: $i; palfx.mul: $scaledtime,$scaledtime,256; scale: $escale,$escale; trans: add; alpha: $scaledtime,256;}
+		}
+	}
+}
+
+if !inCustomState {
+
+if stateno = [120,159] && command = "Border Escape" && map(SokuBorderBreaks) < 5 {
+	if hitShakeOver {
+		call BorderBreak();
+		playSnd{value: S3,2; volumescale: 100;}
+		explod{id: 100900; anim: 100900; pos: 0,-50; postype: P1; angle: randomRange(0,35999)/100.0; ontop: 1; bindtime: 0; removetime: -2; scale: 1,1; supermovetime: -1; pausemovetime: -1; ownpal: 1; shader: "trans_rights"; shadertime: -1; palfx.time: -1; palfx.mul: 256,256,256; interpolation.time: 16; interpolation.palfx.mul: 256,0,0; ignorehitpause: 1;}
+		if !pos Y {
+			changeState{value: cond(command = "holddown",902,900+(command = "holdfwd")); ctrl: 0; continue: 1}
+		} else {
+			changeState{value: 904+(command = "holdfwd"); ctrl: 0; continue: 1}
+		}
+	} else {assertCommand{name: "Border Escape"; buffer.time: 2;}}
+}
 
 ignoreHitPause {
 	displayToClipboard{text:"vel x = %f, vel y = %f"; params: vel X, vel Y;}
@@ -751,13 +839,13 @@ if getHitVar(frame) && moveType = H {
 }
 
 if !ctrl {
-	if map(CanMotionCancel) && stateType != A && command = "holdup" {
+	if map(CanMotionCancel) && pos Y = 0 && command = "holdup" {
 		call ActionStart(1);
 		changeState{value: 41; ctrl: 0; continue: 1;}
 	}
 } else {
 	call ActionStart(0);
-	if stateType != A {
+	if pos Y = 0 {
 		if p2Dist X < 0 {turn{}}
 		if command = "SuperJump" {
 			assertCommand{name: "SuperJump"; buffer.time: 0;}
@@ -794,7 +882,7 @@ ignoreHitPause if command = "R" && inputTime(R) = 1 {
 	map(DoubleTapR) := map(DoubleTapR)+1;
 }
 
-if stateType = A && (ctrl || map(CanMotionCancel)) {
+if pos Y && sysVar(41) < 2 && (ctrl || map(CanMotionCancel)) {
 	if command = "FF" {
 		call ActionStart(4);
 		changeState{value: cond(facing = 1,110,115); ctrl: 0; continue: 1;}
@@ -802,7 +890,7 @@ if stateType = A && (ctrl || map(CanMotionCancel)) {
 		call ActionStart(4);
 		changeState{value: cond(facing = -1,110,115); ctrl: 0; continue: 1;}
 	}
-} else if stateType != A && command = "holdx" {
+} else if pos Y = 0 && command = "holdx" {
 	if ctrl && ((command = "right" && facing = 1) || (command = "left" && facing = -1)) {
 		call ActionStart(50);
 		changeState{value: 100; ctrl: 0; continue: 1;}
@@ -820,13 +908,18 @@ if !introState {
 			assertCommand{name: "a"; buffer.time: 0;}
 			call ActionStart(50);
 			changeState{value: 300; ctrl: 0; continue: 1;}
-		}
-		if command = "b" && command = "holdfwd" {
+		} else if command = "b" && command = "holdfwd" {
 			assertCommand{name: "b"; buffer.time: 0;}
 			call ActionStart(100);
 			changeState{value: 310; ctrl: 0; continue: 1;}
+		} else if command = "c" && command = "holdfwd" {
+			assertCommand{name: "6c"; buffer.time: 0;}
+			assertCommand{name: "4c"; buffer.time: 0;}
+			assertCommand{name: "c"; buffer.time: 0;}
+			call ActionStart(100);
+			changeState{value: 320; ctrl: 0; continue: 1;}
 		}
-	} else if stateType = A && command = "2a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
+	} else if pos Y && command = "2a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
 		assertCommand{name: "6a"; buffer.time: 0;}
 		assertCommand{name: "4a"; buffer.time: 0;}
 		assertCommand{name: "2a"; buffer.time: 0;}
@@ -835,22 +928,22 @@ if !introState {
 		assertCommand{name: "a"; buffer.time: 0;}
 		call ActionStart(30);
 		changeState{value: 620; ctrl: 0; continue: 1;}
-	} else if stateType = A && command = "8a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
+	} else if pos Y && command = "8a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
 		assertCommand{name: "8a"; buffer.time: 0;}
 		assertCommand{name: "a"; buffer.time: 0;}
 		call ActionStart(30);
 		changeState{value: 630; ctrl: 0; continue: 1;}
-	} else if stateType = A && ((command = "6a" && facing = 1) || (command = "4a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
+	} else if pos Y && ((command = "6a" && facing = 1) || (command = "4a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
 		assertCommand{name: "6a"; buffer.time: 0;}
 		assertCommand{name: "4a"; buffer.time: 0;}
 		assertCommand{name: "a"; buffer.time: 0;}
 		call ActionStart(30);
 		changeState{value: 610; ctrl: 0; continue: 1;}
-	} else if stateType = A && command = "a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 10)) {
+	} else if pos Y && command = "a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 10)) {
 		assertCommand{name: "a"; buffer.time: 0;}
 		call ActionStart(20);
 		changeState{value: 600; ctrl: 0; continue: 1;}
-	} else if stateType != A && ((command = "3a" && facing = 1) || (command = "1a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
+	} else if pos Y = 0 && ((command = "3a" && facing = 1) || (command = "1a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
 		assertCommand{name: "6a"; buffer.time: 0;}
 		assertCommand{name: "4a"; buffer.time: 0;}
 		assertCommand{name: "2a"; buffer.time: 0;}
@@ -859,7 +952,7 @@ if !introState {
 		assertCommand{name: "a"; buffer.time: 0;}
 		call ActionStart(30);
 		changeState{value: 410; ctrl: 0; continue: 1;}
-	} else if stateType != A && ((command = "6a" && facing = 1) || (command = "4a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
+	} else if pos Y = 0 && ((command = "6a" && facing = 1) || (command = "4a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 20)) {
 		assertCommand{name: "6a"; buffer.time: 0;}
 		assertCommand{name: "4a"; buffer.time: 0;}
 		assertCommand{name: "a"; buffer.time: 0;}
@@ -892,13 +985,13 @@ if !introState {
 		assertCommand{name: "a"; buffer.time: 0;}
 		call ActionStart(100);
 		changeState{value: 203; ctrl: 0; continue: 1;}
-	} else if stateType != A && ((command = "4a" && facing = 1) || (command = "6a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 10)) {
+	} else if pos Y = 0 && ((command = "4a" && facing = 1) || (command = "6a" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 10)) {
 		assertCommand{name: "6a"; buffer.time: 0;}
 		assertCommand{name: "4a"; buffer.time: 0;}
 		assertCommand{name: "a"; buffer.time: 0;}
 		call ActionStart(20);
 		changeState{value: 205; ctrl: 0; continue: 1;}
-	} else if stateType != A && command = "a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 10)) {
+	} else if pos Y = 0 && command = "a" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 10)) {
 		assertCommand{name: "a"; buffer.time: 0;}
 		call ActionStart(20);
 		changeState{value: cond(cond(const(Mugensoku.HoldXFar5A),command = "holdx",p2Dist X > 90),250,200); ctrl: 0; continue: 1;}
@@ -920,18 +1013,28 @@ if !introState {
 		} else {
 			changeState{value: 1204; anim: 1204; ctrl: 0; continue: 1;}
 		}
-	} else if guardPoints >= 200 && stateType != A && floor(map(ZenithSpecialMotion)/1000) = 326 && floor(map(ZenithSpecialButton))&2 && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 50)) {
+	} else if guardPoints >= 200 && pos Y = 0 && floor(map(ZenithSpecialMotion)/1000) = 326 && floor(map(ZenithSpecialButton))&2 && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 50)) {
 		assertCommand{name: "2b"; buffer.time: 0;}
 		assertCommand{name: "b"; buffer.time: 0;}
 		call ActionStart(100);
 		changeState{value: 1100; ctrl: 0; continue: 1;}
-	} else if guardPoints >= 200 && stateType != A && floor(map(ZenithSpecialMotion)/1000) = 326 && floor(map(ZenithSpecialButton))&4 && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 50)) {
+	} else if guardPoints >= 200 && pos Y = 0 && floor(map(ZenithSpecialMotion)/1000) = 326 && floor(map(ZenithSpecialButton))&4 && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 50)) {
 		assertCommand{name: "6c"; buffer.time: 0;}
 		assertCommand{name: "4c"; buffer.time: 0;}
 		assertCommand{name: "2c"; buffer.time: 0;}
 		assertCommand{name: "c"; buffer.time: 0;}
 		call ActionStart(100);
 		changeState{value: 1105; ctrl: 0; continue: 1;}
+	} else if guardPoints >= 200 && pos Y = 0 && floor(map(ZenithSpecialMotion)/1000) = 632 && floor(map(ZenithSpecialButton))&2 && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 50)) {
+		assertCommand{name: "b"; buffer.time: 0;}
+		call ActionStart(100);
+		changeState{value: 1400; anim: 1400; ctrl: 0; continue: 1;}
+	} else if guardPoints >= 200 && pos Y = 0 && floor(map(ZenithSpecialMotion)/1000) = 632 && floor(map(ZenithSpecialButton))&4 && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 50)) {
+		assertCommand{name: "6c"; buffer.time: 0;}
+		assertCommand{name: "4c"; buffer.time: 0;}
+		assertCommand{name: "c"; buffer.time: 0;}
+		call ActionStart(100);
+		changeState{value: 1400; anim: 1401; ctrl: 0; continue: 1;}
 	} else if guardPoints >= 200 && floor(map(ZenithSpecialMotion)/1000) = 632 && floor(map(ZenithSpecialButton))&2 && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 50)) {
 		assertCommand{name: "b"; buffer.time: 0;}
 		call ActionStart(100);
@@ -954,7 +1057,7 @@ if !introState {
 		map(Charge) := 2;
 		call ActionStart(100);
 		changeState{value: 1300; ctrl: 0; continue: 1;}
-	} else if guardPoints >= 200 && stateType = A && command = "2b" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 30)) {
+	} else if guardPoints >= 200 && pos Y && command = "2b" && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 30)) {
 		assertCommand{name: "2b"; buffer.time: 0;}
 		assertCommand{name: "b"; buffer.time: 0;}
 		call ActionStart(40);
@@ -969,7 +1072,7 @@ if !introState {
 		assertCommand{name: "2c"; buffer.time: 0;}
 		assertCommand{name: "c"; buffer.time: 0;}
 		call ActionStart(50);
-		changeState{value: cond(stateType = A, 725,525); ctrl: 0; continue: 1;}
+		changeState{value: cond(pos Y, 725,525); ctrl: 0; continue: 1;}
 	} else if guardPoints >= 200 && ((command = "6c" && facing = 1) || (command = "4c" && facing = -1)) && (ctrl || (map(CanActionCancel) && map(ActionLock) <= 40)) {
 		assertCommand{name: "6c"; buffer.time: 0;}
 		assertCommand{name: "4c"; buffer.time: 0;}
@@ -983,9 +1086,9 @@ if !introState {
 	}
 }
 
+} else {call ActionStart(0);}
 }
 }
-
 if stateno = [120,159] || (((inputTime(L) > 0 && (facing = 1 || p2,pos X >= pos X)) || (inputTime(R) > 0 && (facing = -1 || p2,pos X <= pos X))) && (ctrl || map(CanGuard) > 0)) {
 	if stateType != A {
 		if inputTime(D) > 0 {
@@ -993,9 +1096,9 @@ if stateno = [120,159] || (((inputTime(L) > 0 && (facing = 1 || p2,pos X >= pos 
 		} else {
 			guard{guardflag: H;}
 		}
-	} else if p2,authorName != "nns" {
-		guard{guardflag: A;}
-	} else {
+	} else if p2,name = "miki sayaka" {
 		guard{guardflag: HA;}
+	} else {
+		guard{guardflag: A;}
 	}
 }
